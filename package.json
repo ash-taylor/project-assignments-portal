@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "concurrently \"pnpm ui:dev\" \"pnpm api:dev\"",
     "api:install": "pip3 install -r requirements.txt",
-    "api:dev": "python3 -m uvicorn api.index:app --reload",
+    "api:dev": "python3 -m uvicorn api.main:app --reload",
     "ui:dev": "next dev",
     "ui:build": "next build",
     "ui:start": "next start",
