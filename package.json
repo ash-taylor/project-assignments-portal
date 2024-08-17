@@ -15,6 +15,7 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
+    "next": "14.2.5",
     "typescript": "^5"
   },
   "packageManager": "pnpm@9.7.0"
