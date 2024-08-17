@@ -1,3 +1,5 @@
+import './envConfig.mjs';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   rewrites: async () => {
@@ -5,26 +7,28 @@ const nextConfig = {
       {
         source: '/api/:path*',
         destination:
-          process.env.NODE_ENV === 'development'
+          process.env.ENVIRONMENT === 'development'
             ? 'http://127.0.0.1:8000/api/:path*'
             : '/api/',
       },
       {
         source: '/docs',
         destination:
-          process.env.NODE_ENV === 'development'
+          process.env.ENVIRONMENT === 'development'
             ? 'http://127.0.0.1:8000/docs'
             : '/api/docs',
       },
       {
         source: '/openapi.json',
         destination:
-          process.env.NODE_ENV === 'development'
+          process.env.ENVIRONMENT === 'development'
             ? 'http://127.0.0.1:8000/openapi.json'
             : '/api/openapi.json',
       },
     ];
   },
 };
+
+console.log(nextConfig.rewrites());
 
 export default nextConfig;
