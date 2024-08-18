@@ -13,3 +13,12 @@ class User(Base):
     email = Column(String(30), nullable=False, unique=True, index=True)
     active = Column(Boolean, default=True, nullable=False)
     admin = Column(Boolean, default=False, nullable=False)
+
+
+class Project(Base):
+    __tablename__ = "project"
+
+    id = Column(Integer, primary_key=True, index=True)
+    project_name = Column(String(8), nullable=False, unique=True)
+    active = Column(Boolean, default=True, nullable=False)
+    status = Column(String(), nullable=False, index=True)
