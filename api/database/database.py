@@ -15,3 +15,13 @@ if not SQLALCHEMY_DATABASE_URL:
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
+
+
+# class Database:
+#     def __init__(self, host: str) -> None:
+#         if not SQLALCHEMY_DATABASE_URL:
+#             raise ValueError("Unable to resolve Database URL")
+#         self._engine = create_engine(SQLALCHEMY_DATABASE_URL)
+#         self._sessionmaker = sessionmaker(
+#             autocommit=False, autoflush=False, bind=self._engine
+#         )
