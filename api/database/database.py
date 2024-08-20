@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker
 
 dotenv.load_dotenv()
 
-SQLALCHEMY_DATABASE_URL = os.getenv("POSTGRES_URL")
+SQLALCHEMY_DATABASE_URL = os.getenv("DB_POSTGRES_URL")
 
 if not SQLALCHEMY_DATABASE_URL:
     raise ValueError("Unable to resolve Database URL")
