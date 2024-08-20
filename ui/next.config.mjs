@@ -29,6 +29,4 @@ const nextConfig = {
   },
 };
 
-console.log(nextConfig.rewrites());
-
 export default nextConfig;
