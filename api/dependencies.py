@@ -1,6 +1,5 @@
-from sqlalchemy.orm import Session
 from typing import Annotated
-
+from sqlalchemy.orm import Session
 from fastapi import Depends
 from jwt import InvalidTokenError
 from api.database.crud import get_user_by_username

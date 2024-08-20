@@ -1,19 +1,11 @@
 from datetime import datetime, timedelta, timezone
-import os
-import dotenv
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 import jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
+from api.config import ACCESS_TOKEN_EXPIRE_MINUTES, JWT_ALGORITHM, JWT_SECRET, TOKEN_URL
 from api.database.crud import get_user_by_username
-
-dotenv.load_dotenv()
-
-TOKEN_URL = os.getenv("TOKEN_URL")
-JWT_SECRET = os.getenv("JWT_SECRET")
-JWT_ALGORITHM = os.getenv("JWT_ALGORITHM")
-ACCESS_TOKEN_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
 
 
 class AuthHandler:
@@ -26,9 +18,6 @@ class AuthHandler:
 
     def authenticate_user(self, request: OAuth2PasswordRequestForm, db: Session):
         user = get_user_by_username(db, request.username).scalar_one_or_none()
-
-        print(request.password)
-        print(user.hashed_password)
 
         if not user or not self.validate_password(
             request.password, user.hashed_password
