@@ -1,6 +1,6 @@
 from enum import Enum
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
+from pydantic import UUID4, BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 
 class Roles(str, Enum):
@@ -53,6 +53,6 @@ class UserHashed(UserBase):
 class UserOut(UserBase):
     model_config = ConfigDict(from_attributes=True)
 
-    id: int
+    id: UUID4
     active: bool
     admin: bool
