@@ -3,8 +3,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends
 from jwt import InvalidTokenError, decode
 from api.core.config import app_config
+from api.database.models.user import User
+from api.database.repository import Repository
+from api.database.repository_interface import IRepository
 from api.database.session import db_session_manager
-from api.repositories.user_repository import UserRepository
 from api.services.auth_service import AuthService
 from api.services.auth_service_base import AuthServiceBase
 from api.services.user_service import UserService
@@ -21,8 +23,8 @@ async def get_db_session_dep():
 
 def get_user_repository_dep(
     session: Annotated[AsyncSession, Depends(get_db_session_dep)]
-) -> UserRepository:
-    return UserRepository(session)
+) -> IRepository:
+    return Repository(session, User)
 
 
 def get_auth_service_dep() -> AuthServiceBase:
@@ -30,7 +32,7 @@ def get_auth_service_dep() -> AuthServiceBase:
 
 
 def get_user_service_dep(
-    user_repository: Annotated[UserRepository, Depends(get_user_repository_dep)],
+    user_repository: Annotated[Repository, Depends(get_user_repository_dep)],
     auth_service: Annotated[AuthService, Depends(get_auth_service_dep)],
 ) -> UserService:
     return UserService(user_repository, auth_service)
