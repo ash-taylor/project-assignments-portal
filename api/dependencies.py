@@ -1,42 +1,58 @@
 from typing import Annotated
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends
-from jwt import InvalidTokenError
-from api.database.crud import get_user_by_username
-from api.database.database import SessionLocal
+from jwt import InvalidTokenError, decode
+from api.core.config import app_config
+from api.database.session import db_session_manager
+from api.repositories.user_repository import UserRepository
+from api.services.auth_service import AuthService
+from api.services.auth_service_base import AuthServiceBase
+from api.services.user_service import UserService
 from api.schemas.auth import TokenData
 from api.schemas.user import UserCreate, UserHashed
 from api.utils.auth import auth_handler
 from api.utils.exceptions import ExceptionHandler
 
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+async def get_db_session_dep():
+    async with db_session_manager.session() as session:
+        yield session
+
+
+def get_user_repository_dep(
+    session: Annotated[AsyncSession, Depends(get_db_session_dep)]
+) -> UserRepository:
+    return UserRepository(session)
+
+
+def get_auth_service_dep() -> AuthServiceBase:
+    return AuthService()
+
+
+def get_user_service_dep(
+    user_repository: Annotated[UserRepository, Depends(get_user_repository_dep)],
+    auth_service: Annotated[AuthService, Depends(get_auth_service_dep)],
+) -> UserService:
+    return UserService(user_repository, auth_service)
 
 
 def hash_password_dep(user: UserCreate) -> UserHashed:
     user_dict = user.model_dump()
     user_dict.update({"hashed_password": auth_handler.hash_password(user.password)})
-    return UserHashed(**user_dict)
+    hashed = UserHashed(**user_dict)
+    return hashed
 
 
-def get_current_user_dep(
-    token: Annotated[str, Depends(auth_handler.oauth2_schema)],
-    db: Annotated[Session, Depends(get_db)],
-):
+def decode_access_token_dep(token: Annotated[str, Depends(auth_handler.oauth2_schema)]):
     try:
-        payload = auth_handler.decode_access_token(token)
-        username: str | None = payload.get("sub")
-        if username is None:
+        payload = decode(
+            token, app_config.jwt_secret, algorithms=[app_config.jwt_algorithm]
+        )
+        username = payload.get("sub")
+        admin = payload.get("admin")
+        if username is None or admin is None:
             ExceptionHandler.raise_credentials_exception()
-        token_data = TokenData(username=username)
+        decoded_token = TokenData(username=username, admin=admin)
     except InvalidTokenError:
         ExceptionHandler.raise_credentials_exception()
-    user = get_user_by_username(db, username=token_data.username).scalar()
-    if user is None:
-        ExceptionHandler.raise_credentials_exception()
-    return user
+    return decoded_token
