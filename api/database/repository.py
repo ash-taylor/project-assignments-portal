@@ -3,7 +3,7 @@ from typing import Dict, List, Type, TypeVar
 from sqlalchemy import and_, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.database.repository_interface import IRepository
+from api.database.interfaces.repository_interface import IRepository
 
 
 T = TypeVar("T")

@@ -1,16 +1,16 @@
 from typing import List
 
 from api.database.models.user import User
-from api.database.repository_interface import IRepository
+from api.database.interfaces.repository_interface import IRepository
 from api.schemas.auth import Token, TokenData
-from api.services.auth_service_base import AuthServiceBase
-from api.services.user_service_base import UserServiceBase
+from api.services.interfaces.auth_service_interface import IAuthService
+from api.services.interfaces.user_service_interface import IUserService
 from api.utils.exceptions import ExceptionHandler
 
 
-class UserService(UserServiceBase):
+class UserService(IUserService):
     def __init__(
-        self, user_repository: IRepository[User], auth_service: AuthServiceBase
+        self, user_repository: IRepository[User], auth_service: IAuthService
     ) -> None:
         self._user_repository = user_repository
         self._auth_service = auth_service

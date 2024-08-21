@@ -1,11 +1,13 @@
 from contextlib import asynccontextmanager
 import logging
 import sys
+
 from fastapi import FastAPI
 
+from api.core.config import app_config
 from api.database.session import db_session_manager
 from api.routers import auth_router, users_router
-from .core.config import app_config
+
 
 logging.basicConfig(
     stream=sys.stdout,
