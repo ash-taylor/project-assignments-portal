@@ -5,7 +5,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from api.schemas.auth import Token, TokenData
 
 
-class AuthServiceBase(ABC):
+class IAuthService(ABC):
 
     @abstractmethod
     async def login(self, request: OAuth2PasswordRequestForm) -> Token:

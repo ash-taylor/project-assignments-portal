@@ -9,15 +9,15 @@ from passlib.context import CryptContext
 
 from api.core.config import app_config
 from api.database.models.user import User
-from api.database.repository_interface import IRepository
+from api.database.interfaces.repository_interface import IRepository
 from api.schemas.auth import Token, TokenData
-from api.services.auth_service_base import AuthServiceBase
+from api.services.interfaces.auth_service_interface import IAuthService
 from api.utils.exceptions import ExceptionHandler
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 
-class AuthService(AuthServiceBase):
+class AuthService(IAuthService):
     def __init__(self, user_repository: IRepository[User]) -> None:
         self._pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
         self._user_repository = user_repository

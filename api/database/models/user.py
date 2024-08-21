@@ -1,5 +1,6 @@
 from sqlalchemy import UUID, Boolean, Enum, String, text
 from sqlalchemy.orm import Mapped, mapped_column
+
 from api.schemas.user import Roles
 
 from . import Base

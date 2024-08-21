@@ -5,7 +5,7 @@ from api.database.models.user import User
 from api.schemas.auth import Token, TokenData
 
 
-class UserServiceBase(ABC):
+class IUserService(ABC):
     @abstractmethod
     async def create_user(self, user: User) -> Token:
         pass
