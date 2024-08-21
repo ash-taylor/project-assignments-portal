@@ -60,16 +60,20 @@ class UserService(UserServiceBase):
         params = {
             key: value
             for key, value in {
-                "user_id": user_id,
+                "id": user_id,
                 "user_name": username,
-                "user_email": user_email,
+                "email": user_email,
             }.items()
             if value is not None
         }
         result = await self._user_repository.find(params=params, and_condition=False)
-        if result is None:
-            ExceptionHandler.raise_credentials_exception()
+
+        if not result:
+            return None
+
         user = result[0]
+
         if user is None:
             ExceptionHandler.raise_credentials_exception()
+
         return user
