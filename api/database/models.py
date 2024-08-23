@@ -1,6 +1,7 @@
-from typing import List
-from uuid import uuid4
+from typing import List, Union
+import uuid
 from sqlalchemy import UUID, Boolean, Enum, ForeignKey, String, Text
+from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from api.schemas.project import ProjectStatus
@@ -9,11 +10,11 @@ from api.schemas.user import Roles
 from . import Base
 
 
-class User(Base):
+class User(AsyncAttrs, Base):
     __tablename__ = "user"
 
-    id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, index=True, default=uuid4
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4
     )
     user_name: Mapped[str] = mapped_column(
         String(8), nullable=False, unique=True, index=True
@@ -27,33 +28,38 @@ class User(Base):
     )
     active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     admin: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    project_id: Mapped[UUID] = mapped_column(
+    project_id: Mapped[Union[uuid.UUID, None]] = mapped_column(
         UUID(as_uuid=True), ForeignKey("project.id", ondelete="SET NULL"), nullable=True
     )
-    project: Mapped["Project"] = relationship("Project", back_populates="users")
+    project: Mapped[Union["Project", None]] = relationship(
+        "Project", back_populates="users"
+    )
 
 
-class Customer(Base):
+class Customer(AsyncAttrs, Base):
     __tablename__ = "customer"
 
-    id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, index=True, default=uuid4
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4
     )
     name: Mapped[str] = mapped_column(
         String(50), nullable=False, unique=True, index=True
     )
     active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
-    details: Mapped[str] = mapped_column(Text)
-    projects: Mapped[List["Project"]] = relationship(
+    details: Mapped[Union[str, None]] = mapped_column(Text)
+    projects: Mapped[Union[List["Project"], None]] = relationship(
         "Project", back_populates="customer", cascade="all, delete-orphan"
     )
 
+    def __repr__(self):
+        return f"<Customer(id={self.id}, name={self.name}, details={self.details}, active={self.active})>"
 
-class Project(Base):
+
+class Project(AsyncAttrs, Base):
     __tablename__ = "project"
 
-    id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, index=True, default=uuid4
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4
     )
     name: Mapped[str] = mapped_column(
         String(50), nullable=False, unique=True, index=True
@@ -62,8 +68,8 @@ class Project(Base):
     status: Mapped[ProjectStatus] = mapped_column(
         Enum(ProjectStatus), nullable=False, index=True
     )
-    details: Mapped[str] = mapped_column(Text)
-    customer_id: Mapped[UUID] = mapped_column(
+    details: Mapped[Union[str, None]] = mapped_column(Text)
+    customer_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("customer.id", ondelete="CASCADE"),
         nullable=False,

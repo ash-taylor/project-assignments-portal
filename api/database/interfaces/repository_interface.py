@@ -19,3 +19,7 @@ class IRepository(ABC, Generic[T]):
     @abstractmethod
     async def list_all(self) -> List[T]:
         pass
+
+    @abstractmethod
+    async def delete(self, item: T):
+        pass
