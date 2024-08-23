@@ -3,7 +3,7 @@ from typing import Annotated
 
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from jwt import InvalidTokenError, decode, encode
+from jwt import ExpiredSignatureError, InvalidTokenError, decode, encode
 from passlib.context import CryptContext
 
 
@@ -43,7 +43,7 @@ class AuthService(IAuthService):
     def create_jwt(self, data: dict) -> str:
         to_encode = data.copy()
         exp = datetime.now(timezone.utc) + timedelta(
-            float(app_config.access_token_exp_mins)
+            minutes=int(app_config.access_token_exp_mins)
         )
         to_encode.update({"exp": exp})
         encoded_jwt = encode(
@@ -61,6 +61,8 @@ class AuthService(IAuthService):
             if username is None or admin is None:
                 ExceptionHandler.raise_credentials_exception()
             decoded_token = TokenData(username=username, admin=admin)
+        except ExpiredSignatureError:
+            ExceptionHandler.raise_http_exception(403, "Expired token")
         except InvalidTokenError:
             ExceptionHandler.raise_credentials_exception()
         return decoded_token
@@ -70,3 +72,10 @@ class AuthService(IAuthService):
 
     def validate_pwd(self, pt_pwd: str, hashed_pwd: str):
         return self._pwd_context.verify(pt_pwd, hashed_pwd)
+
+    def validate_user(self, token: str) -> None:
+        self.decode_jwt(token)
+
+    def is_admin(self, token: str) -> bool:
+        decoded_tkn = self.decode_jwt(token)
+        return not decoded_tkn.admin

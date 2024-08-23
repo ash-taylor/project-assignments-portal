@@ -26,3 +26,7 @@ class IUserService(ABC):
         user_id: str | None = None,
     ) -> Optional[User]:
         pass
+
+    @abstractmethod
+    async def delete_user(self, user_id) -> None:
+        pass

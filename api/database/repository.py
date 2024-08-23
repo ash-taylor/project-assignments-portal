@@ -24,6 +24,8 @@ class Repository(IRepository[T]):
     async def find(
         self, params: Dict[str, str], and_condition: bool = True
     ) -> List[T] | None:
+        if not params:
+            return None
         filters = self._generate_filters(params, and_condition)
         result = await self._session.execute(select(self._entity).filter(filters))
         return list(result.scalars().all())
@@ -38,3 +40,7 @@ class Repository(IRepository[T]):
         ]
 
         return and_(*conditions) if and_condition else or_(*conditions)
+
+    async def delete(self, item: T):
+        await self._session.delete(item)
+        return await self._session.commit()

@@ -74,6 +74,13 @@ class UserService(IUserService):
         user = result[0]
 
         if user is None:
-            ExceptionHandler.raise_credentials_exception()
+            ExceptionHandler.raise_http_exception(404, "User not found")
 
         return user
+
+    async def delete_user(self, user_id) -> None:
+        user = await self.find_user(user_id=user_id)
+
+        if user is None:
+            ExceptionHandler.raise_http_exception(404, "User not found")
+        await self._user_repository.delete(user)

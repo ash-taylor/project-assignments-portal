@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Optional
 from pydantic import UUID4, BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 
@@ -51,7 +52,12 @@ class UserHashed(UserBase):
 
 class UserOut(UserBase):
     model_config = ConfigDict(from_attributes=True)
-
     id: UUID4
     admin: bool
     active: bool
+    project: "Optional[ProjectOut]"  # Forward reference
+
+
+from .project import ProjectOut
+
+UserOut.model_rebuild()

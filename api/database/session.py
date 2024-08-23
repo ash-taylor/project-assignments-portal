@@ -17,8 +17,15 @@ Base = declarative_base()
 
 class DatabaseSessionManager:
     def __init__(self, host: str):
-        self.engine = create_async_engine(host)
-        self._sessionmaker = async_sessionmaker(autocommit=False, bind=self.engine)
+        self.engine = create_async_engine(
+            host, echo=True if app_config.log_level == "DEBUG" else False
+        )
+        self._sessionmaker = async_sessionmaker(
+            bind=self.engine,
+            class_=AsyncSession,
+            expire_on_commit=False,
+            autocommit=False,
+        )
 
     async def close(self):
         if self.engine is None:

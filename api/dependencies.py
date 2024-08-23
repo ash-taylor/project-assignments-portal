@@ -4,12 +4,14 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.database.interfaces.repository_interface import IRepository
-from api.database.models import User
+from api.database.models import Customer, User
 from api.database.repository import Repository
 from api.database.session import db_session_manager
 from api.schemas.user import UserCreate, UserHashed
 from api.services.auth_service import AuthService
+from api.services.customer_service import CustomerService
 from api.services.interfaces.auth_service_interface import IAuthService
+from api.services.interfaces.customer_service_interface import ICustomerService
 from api.services.interfaces.user_service_interface import IUserService
 from api.services.user_service import UserService
 
@@ -25,6 +27,12 @@ def get_user_repository_dep(
     return Repository(session, User)
 
 
+def get_customer_repository_dep(
+    session: Annotated[AsyncSession, Depends(get_db_session_dep)]
+) -> IRepository:
+    return Repository(session, Customer)
+
+
 def get_auth_service_dep(
     user_repository: Annotated[Repository, Depends(get_user_repository_dep)]
 ) -> IAuthService:
@@ -36,6 +44,12 @@ def get_user_service_dep(
     auth_service: Annotated[IAuthService, Depends(get_auth_service_dep)],
 ) -> IUserService:
     return UserService(user_repository, auth_service)
+
+
+def get_customer_service_dep(
+    customer_repository: Annotated[Repository, Depends(get_customer_repository_dep)]
+) -> ICustomerService:
+    return CustomerService(customer_repository)
 
 
 def hash_password_dep(

@@ -26,3 +26,11 @@ class IAuthService(ABC):
     @abstractmethod
     def decode_jwt(self, token: str) -> TokenData:
         pass
+
+    @abstractmethod
+    def validate_user(self, token: str) -> None:
+        pass
+
+    @abstractmethod
+    def is_admin(self, token: str) -> bool:
+        pass
