@@ -4,7 +4,7 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.database.interfaces.repository_interface import IRepository
-from api.database.models.user import User
+from api.database.models import User
 from api.database.repository import Repository
 from api.database.session import db_session_manager
 from api.schemas.user import UserCreate, UserHashed

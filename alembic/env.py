@@ -8,9 +8,8 @@ from alembic import context
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-from api.database.models import Base
-from api.database.models import user, project, customer
-
+from api.database import Base
+from api.database.models import User, Project, Customer
 
 dotenv.load_dotenv()
 
