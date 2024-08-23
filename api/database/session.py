@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import (
 from sqlalchemy.ext.declarative import declarative_base
 
 from api.core.config import app_config
+from api.utils.exceptions import ExceptionHandler
 
 Base = declarative_base()
 
@@ -21,13 +22,17 @@ class DatabaseSessionManager:
 
     async def close(self):
         if self.engine is None:
-            raise Exception("Database session not initialised")
+            ExceptionHandler.raise_http_exception(
+                500, "Database session not initialised"
+            )
         await self.engine.dispose()
 
     @asynccontextmanager
     async def connect(self) -> AsyncIterator[AsyncConnection]:
         if self.engine is None:
-            raise Exception("Database session not initialised")
+            ExceptionHandler.raise_http_exception(
+                500, "Database session not initialised"
+            )
         async with self.engine.begin() as connection:
             try:
                 yield connection
@@ -38,7 +43,9 @@ class DatabaseSessionManager:
     @asynccontextmanager
     async def session(self) -> AsyncIterator[AsyncSession]:
         if self._sessionmaker is None:
-            raise Exception("Database session not initialised")
+            ExceptionHandler.raise_http_exception(
+                500, "Database session not initialised"
+            )
 
         session = self._sessionmaker()
         try:

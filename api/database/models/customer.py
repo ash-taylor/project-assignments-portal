@@ -1,17 +1,16 @@
 from typing import TYPE_CHECKING, List
 from uuid import uuid4
-from sqlalchemy import UUID, Boolean, Column, ForeignKey, String, Text, text
+from sqlalchemy import UUID, Boolean, String, Text, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from . import Base
 
 if TYPE_CHECKING:
-    from .customer import Customer
-    from .user import User
+    from .project import Project
 
 
-class Project(Base):
-    __tablename__ = "project"
+class Customer(Base):
+    __tablename__ = "customer"
 
     id: Mapped[UUID] = mapped_column(
         UUID(as_uuid=True),
@@ -24,12 +23,7 @@ class Project(Base):
         String(50), nullable=False, unique=True, index=True
     )
     active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
-    status = Column(String(), nullable=False, index=True)
     details: Mapped[str] = mapped_column(Text)
-    customer_id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("customer.id", ondelete="CASCADE"),
-        nullable=False,
+    projects: Mapped[List["Project"]] = relationship(
+        "Project", back_populates="customer", cascade="all, delete-orphan"
     )
-    customer: Mapped["Customer"] = relationship("Customer", back_populates="projects")
-    users: Mapped[List["User"]] = relationship("User", back_populates="project")
