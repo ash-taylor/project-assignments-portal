@@ -8,7 +8,7 @@ from passlib.context import CryptContext
 
 
 from api.core.config import app_config
-from api.database.models.user import User
+from api.database.models import User
 from api.database.interfaces.repository_interface import IRepository
 from api.schemas.auth import Token, TokenData
 from api.services.interfaces.auth_service_interface import IAuthService

@@ -1,7 +1,7 @@
 from typing import Annotated, List
 from fastapi import APIRouter, Depends
 
-from api.database.models.user import User
+from api.database.models import User
 from api.dependencies import (
     get_auth_service_dep,
     get_user_service_dep,

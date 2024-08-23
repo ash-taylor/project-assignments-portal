@@ -1,6 +1,6 @@
 from typing import List
 
-from api.database.models.user import User
+from api.database.models import User
 from api.database.interfaces.repository_interface import IRepository
 from api.schemas.auth import Token, TokenData
 from api.services.interfaces.auth_service_interface import IAuthService

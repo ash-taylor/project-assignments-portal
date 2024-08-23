@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
 
-from api.database.models.user import User
+from api.database.models import User
 from api.schemas.auth import Token, TokenData
 
 
