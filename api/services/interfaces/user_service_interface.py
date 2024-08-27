@@ -3,11 +3,12 @@ from typing import List, Optional
 
 from api.database.models import User
 from api.schemas.auth import Token, TokenData
+from api.schemas.user import UserCreate
 
 
 class IUserService(ABC):
     @abstractmethod
-    async def create_user(self, user: User) -> Token:
+    async def create_user(self, user: UserCreate) -> Token:
         pass
 
     @abstractmethod

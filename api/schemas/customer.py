@@ -1,6 +1,5 @@
 from typing import Optional
-from uuid import UUID
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import UUID4, BaseModel, ConfigDict, Field, field_validator
 
 
 class CustomerBase(BaseModel):
@@ -17,5 +16,5 @@ class CustomerCreate(CustomerBase):
 
 class CustomerOut(CustomerBase):
     model_config = ConfigDict(from_attributes=True)
-    id: UUID
+    id: UUID4
     active: bool

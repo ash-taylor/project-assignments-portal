@@ -16,3 +16,9 @@ class ExceptionHandler:
         ExceptionHandler.raise_http_exception(
             401, "Could not validate credentials", auth_error=True
         )
+
+    @staticmethod
+    def raise_unauthorized_exception() -> NoReturn:
+        ExceptionHandler.raise_http_exception(
+            401, "Unauthorized to perform this action", auth_error=True
+        )

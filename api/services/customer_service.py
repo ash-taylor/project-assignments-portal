@@ -11,16 +11,23 @@ class CustomerService(ICustomerService):
         self._customer_repository = customer_repository
 
     async def create_customer(self, customer: CustomerCreate) -> Customer:
-        customer_exists = await self.find_customer(name=customer.name)
-
-        if customer_exists:
+        existing_customer = await self.find_customer(name=customer.name)
+        if existing_customer:
             ExceptionHandler.raise_http_exception(404, "Customer already exists")
-
         db_customer = Customer(name=customer.name, details=customer.details)
+        return await self._customer_repository.create(db_customer)
 
-        result = await self._customer_repository.create(db_customer)
-
-        return result
+    async def get_customer(
+        self, name: str | None = None, customer_id: str | None = None
+    ) -> Customer:
+        if not name and not customer_id:
+            ExceptionHandler.raise_http_exception(
+                400, "No customer name or ID provided"
+            )
+        customer = await self.find_customer(name=name, customer_id=customer_id)
+        if not customer:
+            ExceptionHandler.raise_http_exception(404, "Customer not found")
+        return customer
 
     async def list_customers(self) -> List[Customer]:
         return await self._customer_repository.list_all()
@@ -36,22 +43,15 @@ class CustomerService(ICustomerService):
             }.items()
             if value is not None
         }
-
         result = await self._customer_repository.find(
             params=params, and_condition=False
         )
-
-        if not result or not result[0]:
-            ExceptionHandler.raise_http_exception(404, "Customer not found")
-
-        customer = result[0]
-
-        return customer
+        if not result or result[0] is None:
+            return None
+        return result[0]
 
     async def delete_customer(self, customer_id) -> None:
         customer = await self.find_customer(customer_id=customer_id)
-
         if customer is None:
             ExceptionHandler.raise_http_exception(404, "Customer not found")
-
         await self._customer_repository.delete(customer)

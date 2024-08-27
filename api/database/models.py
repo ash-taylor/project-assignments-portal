@@ -35,6 +35,20 @@ class User(AsyncAttrs, Base):
         "Project", back_populates="users"
     )
 
+    def __repr__(self):
+        return f"""
+<User(
+    id={self.id}, 
+    user_name={self.user_name}, 
+    hashed_password={self.hashed_password}, 
+    first_name={self.first_name}, 
+    last_name={self.last_name}, 
+    role={self.role}, 
+    email={self.email}, 
+    active={self.active}, 
+    admin={self.admin})
+>"""
+
 
 class Customer(AsyncAttrs, Base):
     __tablename__ = "customer"
