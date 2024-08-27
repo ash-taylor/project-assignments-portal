@@ -1,7 +1,6 @@
 from enum import Enum
 from typing import List, Optional
-from uuid import UUID
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import UUID4, BaseModel, ConfigDict, Field, field_validator
 
 
 class ProjectStatus(str, Enum):
@@ -26,7 +25,7 @@ class ProjectCreate(ProjectBase):
 
 class ProjectOut(ProjectBase):
     model_config = ConfigDict(from_attributes=True)
-    id: UUID
+    id: UUID4
     users: "Optional[List[UserOut]]"  # Forward reference
 
 

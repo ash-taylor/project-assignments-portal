@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import UUID4, BaseModel
 
 
 class Token(BaseModel):
@@ -7,5 +7,6 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
+    id: UUID4
     username: str
     admin: bool

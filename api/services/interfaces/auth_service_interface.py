@@ -32,5 +32,5 @@ class IAuthService(ABC):
         pass
 
     @abstractmethod
-    def is_admin(self, token: str) -> bool:
+    def is_admin(self, token: TokenData) -> bool:
         pass

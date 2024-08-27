@@ -15,6 +15,14 @@ class ICustomerService(ABC):
         pass
 
     @abstractmethod
+    async def get_customer(
+        self,
+        name: str | None = None,
+        customer_id: str | None = None,
+    ) -> Customer:
+        pass
+
+    @abstractmethod
     async def find_customer(
         self,
         name: str | None = None,
