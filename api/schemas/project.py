@@ -14,6 +14,7 @@ class ProjectBase(BaseModel):
     name: str = Field(min_length=3, max_length=50, pattern="^[A-Za-z]")
     status: ProjectStatus
     details: Optional[str] = Field(max_length=100)
+    customer_id: UUID4
 
 
 class ProjectCreate(ProjectBase):
@@ -26,7 +27,10 @@ class ProjectCreate(ProjectBase):
 class ProjectOut(ProjectBase):
     model_config = ConfigDict(from_attributes=True)
     id: UUID4
-    users: "Optional[List[UserOut]]"  # Forward reference
+
+
+class ProjectWithUsersOut(ProjectOut):
+    users: Optional[List["UserOut"]]
 
 
 from .user import UserOut

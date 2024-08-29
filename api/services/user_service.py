@@ -10,8 +10,16 @@ from api.utils.exceptions import ExceptionHandler
 
 
 class UserService(IUserService):
+    """
+    User Service class, inherits from User Service interface.
+
+    Contains all of the business logic related to user entities.
+    """
+
     def __init__(
-        self, user_repository: IRepository[User], auth_service: IAuthService
+        self,
+        user_repository: IRepository[User],
+        auth_service: IAuthService,
     ) -> None:
         self._user_repository = user_repository
         self._auth_service = auth_service
@@ -20,6 +28,7 @@ class UserService(IUserService):
         existing_user = await self.find_user(
             username=user.user_name, user_email=user.email
         )
+
         if existing_user:
             if (
                 existing_user.user_name == user.user_name
@@ -30,6 +39,7 @@ class UserService(IUserService):
                 ExceptionHandler.raise_http_exception(400, "Username already exists")
             elif existing_user.email == user.email:
                 ExceptionHandler.raise_http_exception(400, "Email already exists")
+
         db_user = User(
             user_name=user.user_name,
             hashed_password=user.password,
@@ -38,8 +48,9 @@ class UserService(IUserService):
             email=user.email,
             role=user.role,
         )
-        print(db_user)
+
         persisted_user = await self._user_repository.create(db_user)
+
         access_token = self._auth_service.create_jwt(
             data={
                 "sub": persisted_user.user_name,
@@ -47,19 +58,33 @@ class UserService(IUserService):
                 "id": str(persisted_user.id),
             }
         )
+
         return Token(access_token=access_token, token_type="Bearer")
 
-    async def list_users(self) -> List[User]:
-        return await self._user_repository.list_all()
+    async def get_user_by_id(self, user_id: str, project: bool = False) -> User:
+        if project:
+            user = await self.find_user("project", user_id=user_id)
+        else:
+            user = await self.find_user(user_id=user_id)
+
+        if user is None:
+            ExceptionHandler.raise_http_exception(404, "User not found")
+
+        return user
+
+    async def list_users(self, projects: bool = False) -> List[User]:
+        return (
+            await self._user_repository.list_all("project")
+            if projects
+            else await self._user_repository.list_all()
+        )
 
     async def get_current_user(self, token_data: TokenData) -> User:
-        user = await self.find_user(user_id=str(token_data.id))
-        if not user:
-            ExceptionHandler.raise_http_exception(404, "User not found")
-        return user
+        return await self.get_user_by_id(user_id=str(token_data.id), project=True)
 
     async def find_user(
         self,
+        load_relation: str | None = None,
         username: str | None = None,
         user_email: str | None = None,
         user_id: str | None = None,
@@ -73,13 +98,35 @@ class UserService(IUserService):
             }.items()
             if value is not None
         }
-        result = await self._user_repository.find(params=params, and_condition=False)
+
+        result = await self._user_repository.find(
+            params=params, and_condition=False, load_relation=load_relation
+        )
+
         if not result or result[0] is None:
             return None
+
         return result[0]
 
-    async def delete_user(self, user_id) -> None:
+    async def delete_user(self, user_id: str) -> None:
         user = await self.find_user(user_id=user_id)
+
         if user is None:
             ExceptionHandler.raise_http_exception(404, "User not found")
+
         await self._user_repository.delete(user)
+
+    async def update_user_project(self, user_id: str, project_id: str | None) -> User:
+        user = await self.find_user(user_id=user_id)
+
+        if user is None:
+            ExceptionHandler.raise_http_exception(404, "User not found")
+
+        updated_user = await self._user_repository.update(
+            parent=user,
+            update_attr="project_id",
+            update_val=project_id,
+            load_relation="project",
+        )
+
+        return updated_user

@@ -6,7 +6,7 @@ from fastapi import FastAPI
 
 from api.core.config import app_config
 from api.database.session import db_session_manager
-from api.routers import auth_router, customers_router, users_router
+from api.routers import auth_router, customers_router, projects_router, users_router
 
 
 logging.basicConfig(
@@ -36,6 +36,7 @@ app = FastAPI(
 app.include_router(auth_router.router)
 app.include_router(users_router.router)
 app.include_router(customers_router.router)
+app.include_router(projects_router.router)
 
 
 # TO DELETE

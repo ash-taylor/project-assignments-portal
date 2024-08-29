@@ -51,7 +51,11 @@ class UserOut(UserBase):
     id: UUID4
     admin: bool
     active: bool
-    project: "Optional[ProjectOut]"  # Forward reference
+    project_id: Optional[UUID4]
+
+
+class UserWithProjectOut(UserOut):
+    project: Optional["ProjectOut"]  # Forward reference
 
 
 from .project import ProjectOut
