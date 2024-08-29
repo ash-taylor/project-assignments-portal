@@ -13,7 +13,7 @@ class CustomerService(ICustomerService):
     async def create_customer(self, customer: CustomerCreate) -> Customer:
         existing_customer = await self.find_customer(name=customer.name)
         if existing_customer:
-            ExceptionHandler.raise_http_exception(404, "Customer already exists")
+            ExceptionHandler.raise_http_exception(409, "Customer already exists")
         db_customer = Customer(name=customer.name, details=customer.details)
         return await self._customer_repository.create(db_customer)
 
@@ -46,7 +46,7 @@ class CustomerService(ICustomerService):
         result = await self._customer_repository.find(
             params=params, and_condition=False
         )
-        if not result or result[0] is None:
+        if not result:
             return None
         return result[0]
 

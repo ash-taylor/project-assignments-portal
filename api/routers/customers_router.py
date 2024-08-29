@@ -4,6 +4,8 @@ from fastapi import APIRouter, Depends
 
 from api.dependencies import (
     get_customer_service,
+    parse_customer_id,
+    parse_optional_customer_id,
     validate_admin,
     validate_user,
 )
@@ -31,14 +33,14 @@ async def create_customer(
 async def get_customer(
     token: Annotated[TokenData, Depends(validate_user)],
     customer_service: Annotated[ICustomerService, Depends(get_customer_service)],
-    customer_id: str | None = None,
+    customer_id: Annotated[str | None, Depends(parse_optional_customer_id)],
     name: str | None = None,
 ):
     logger.info("user: %s invoked GET /customer", token.username)
     return await customer_service.get_customer(name, customer_id=customer_id)
 
 
-@router.get("/customers", tags=["customers"], response_model=(List[CustomerOut] | None))
+@router.get("/customers", tags=["customers"], response_model=List[CustomerOut])
 async def get_all_customers(
     token: Annotated[TokenData, Depends(validate_admin)],  # Requires admin rights
     customer_service: Annotated[ICustomerService, Depends(get_customer_service)],
@@ -49,7 +51,7 @@ async def get_all_customers(
 
 @router.delete("/customer/{customer_id}", tags=["customers"], status_code=204)
 async def delete_customer(
-    customer_id: str,
+    customer_id: Annotated[str, Depends(parse_customer_id)],
     token: Annotated[TokenData, Depends(validate_admin)],  # Requires admin rights
     customer_service: Annotated[ICustomerService, Depends(get_customer_service)],
 ):

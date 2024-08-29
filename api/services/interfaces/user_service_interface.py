@@ -12,7 +12,11 @@ class IUserService(ABC):
         pass
 
     @abstractmethod
-    async def list_users(self) -> List[User]:
+    async def get_user_by_id(self, user_id: str, project: bool = False) -> User:
+        pass
+
+    @abstractmethod
+    async def list_users(self, projects: bool = False) -> List[User]:
         pass
 
     @abstractmethod
@@ -22,6 +26,7 @@ class IUserService(ABC):
     @abstractmethod
     async def find_user(
         self,
+        load_relation: str | None = None,
         username: str | None = None,
         user_email: str | None = None,
         user_id: str | None = None,
@@ -29,5 +34,9 @@ class IUserService(ABC):
         pass
 
     @abstractmethod
-    async def delete_user(self, user_id) -> None:
+    async def delete_user(self, user_id: str) -> None:
+        pass
+
+    @abstractmethod
+    async def update_user_project(self, user_id: str, project_id: str | None) -> User:
         pass
