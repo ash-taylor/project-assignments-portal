@@ -26,7 +26,7 @@ class IUserService(ABC):
     @abstractmethod
     async def find_user(
         self,
-        load_relation: str | None = None,
+        load_relations: List[str] | None = None,
         username: str | None = None,
         user_email: str | None = None,
         user_id: str | None = None,

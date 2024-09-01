@@ -52,12 +52,3 @@ class UserOut(UserBase):
     admin: bool
     active: bool
     project_id: Optional[UUID4]
-
-
-class UserWithProjectOut(UserOut):
-    project: Optional["ProjectOut"]  # Forward reference
-
-
-from .project import ProjectOut
-
-UserOut.model_rebuild()

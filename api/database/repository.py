@@ -1,3 +1,5 @@
+from asyncio import gather
+import logging
 from typing import Dict, List, Type, TypeVar
 
 from sqlalchemy import and_, or_, select
@@ -10,7 +12,8 @@ from api.utils.exceptions import ExceptionHandler
 
 
 T = TypeVar("T", bound=Base)
-U = TypeVar("U")
+
+logger = logging.getLogger(__name__)
 
 
 class Repository(IRepository[T]):
@@ -29,7 +32,7 @@ class Repository(IRepository[T]):
         self,
         params: Dict[str, str],
         and_condition: bool = True,
-        load_relation: str | None = None,
+        load_relations: List[str] | None = None,
     ) -> List[T] | None:
         if not params:
             return None
@@ -40,51 +43,55 @@ class Repository(IRepository[T]):
             .all()
         )
 
-        if load_relation:
-            for result in results:
-                if hasattr(result.awaitable_attrs, load_relation):
-                    await getattr(result.awaitable_attrs, load_relation)
+        if not load_relations:
+            return results
 
+        await self.load_awaitables(load_relations=load_relations, results=results)
         return results
 
     async def update(
         self,
-        parent: T,
-        update_attr: str,
-        update_val: str | U,
-        load_relation: str | None = None,
+        item: T,
+        updates: Dict[str, str | None],
+        load_relations: List[str] | None = None,
     ) -> T:
         try:
-            if not hasattr(parent, update_attr):
-                raise AttributeError(
-                    f"{self._entity.__name__} does not have a relationship attribute '{update_attr}'."
-                )
-            update = getattr(parent, update_attr)
-            if isinstance(update, list):
-                update.append(update_val)
-            else:
-                setattr(parent, update_attr, update_val)
+            for attr, val in updates.items():
+                if not hasattr(item, attr):
+                    raise AttributeError(f"Attribute {attr} not in item {item}")
+                setattr(item, attr, val)
+
             await self._session.commit()
-            await self._session.refresh(parent)
+            await self._session.refresh(item)
 
-            if load_relation and hasattr(parent.awaitable_attrs, load_relation):
-                await getattr(parent.awaitable_attrs, load_relation)
+            if not load_relations:
+                return item
 
-            return parent
-        except IntegrityError:
-            ExceptionHandler.raise_http_exception(401, "Bad request")
+            await self.load_awaitables(load_relations=load_relations, results=[item])
+            return item
+        except IntegrityError as e:
+            await self._session.rollback()
+            logger.error("Integrity Error %s", e)
+            ExceptionHandler.raise_repository_exception()
+        except AttributeError as e:
+            await self._session.rollback()
+            logger.error("Integrity Error %s", e)
+            ExceptionHandler.raise_repository_exception()
 
-    async def list_all(self, load_relation: str | None = None) -> List[T]:
+    async def list_all(self, load_relations: List[str] | None = None) -> List[T]:
         results = list(
             (await self._session.execute(select(self._entity))).scalars().all()
         )
 
-        if load_relation:
-            for result in results:
-                if hasattr(result.awaitable_attrs, load_relation):
-                    await getattr(result.awaitable_attrs, load_relation)
+        if not load_relations:
+            return results
 
+        await self.load_awaitables(load_relations=load_relations, results=results)
         return results
+
+    async def delete(self, item: T):
+        await self._session.delete(item)
+        return await self._session.commit()
 
     def _generate_filters(self, params: Dict[str, str], and_condition: bool):
         conditions = [
@@ -93,6 +100,12 @@ class Repository(IRepository[T]):
 
         return and_(*conditions) if and_condition else or_(*conditions)
 
-    async def delete(self, item: T):
-        await self._session.delete(item)
-        return await self._session.commit()
+    async def load_awaitables(
+        self, load_relations: List[str], results: List[T]
+    ) -> None:
+        awaitables = []
+        for relation in load_relations:
+            for result in results:
+                if hasattr(result.awaitable_attrs, relation):
+                    awaitables.append(getattr(result.awaitable_attrs, relation))
+        await gather(*awaitables)

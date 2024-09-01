@@ -10,9 +10,9 @@ from api.routers import auth_router, customers_router, projects_router, users_ro
 
 
 logging.basicConfig(
-    stream=sys.stdout,
     level=logging.DEBUG if app_config.log_level == "DEBUG" else logging.INFO,
-    format="%(levelname)s:     %(message)s",
+    format="%(levelname)s:     %(asctime)s - %(name)s - %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)],
 )
 
 logger = logging.getLogger(__name__)

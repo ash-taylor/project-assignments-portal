@@ -92,7 +92,9 @@ class Project(Base):
         ForeignKey("customer.id", ondelete="CASCADE"),
         nullable=False,
     )
-    customer: Mapped["Customer"] = relationship(back_populates="projects")
+    customer: Mapped["Customer"] = relationship(
+        back_populates="projects", lazy="joined"
+    )
     users: Mapped[List["User"]] = relationship(back_populates="project")
 
     def __repr__(self):
