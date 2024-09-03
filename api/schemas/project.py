@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List, Optional
+from typing import Optional
 from pydantic import UUID4, BaseModel, ConfigDict, Field, field_validator
 
 
@@ -11,10 +11,10 @@ class ProjectStatus(str, Enum):
 
 
 class ProjectBase(BaseModel):
-    name: str = Field(min_length=3, max_length=50, pattern="^[A-Za-z]")
-    status: ProjectStatus
+    name: Optional[str] = Field(min_length=3, max_length=50, pattern="^[A-Za-z]")
+    status: Optional[ProjectStatus]
     details: Optional[str] = Field(max_length=100)
-    customer_id: UUID4
+    customer_id: Optional[UUID4]
 
 
 class ProjectCreate(ProjectBase):
@@ -23,16 +23,28 @@ class ProjectCreate(ProjectBase):
         if v and isinstance(v, str):
             return v.strip().capitalize()
 
+    name: str = Field(min_length=3, max_length=50, pattern="^[A-Za-z]")
+    status: ProjectStatus
+    details: Optional[str] = Field(max_length=100)
+    customer_id: UUID4
+
+
+class ProjectUpdate(ProjectBase):
+    @field_validator("name", mode="before")
+    def capitalize(cls, v):  # pylint: disable=no-self-argument
+        if v and isinstance(v, str):
+            return v.strip().capitalize()
+
+    @field_validator("details", "customer_id", mode="before")
+    def strip(cls, v):  # pylint: disable=no-self-argument
+        if v and isinstance(v, str):
+            return v.strip()
+
 
 class ProjectOut(ProjectBase):
     model_config = ConfigDict(from_attributes=True)
     id: UUID4
-
-
-class ProjectWithUsersOut(ProjectOut):
-    users: Optional[List["UserOut"]]
-
-
-from .user import UserOut
-
-ProjectOut.model_rebuild()
+    name: str = Field(min_length=3, max_length=50, pattern="^[A-Za-z]")
+    status: ProjectStatus
+    details: Optional[str] = Field(max_length=100)
+    customer_id: UUID4

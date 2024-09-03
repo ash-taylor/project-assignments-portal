@@ -19,4 +19,4 @@ async def login(
     auth_service: Annotated[IAuthService, Depends(get_auth_service)],
 ) -> Token:
     logger.info("user: %s invoked POST /login", request.username)
-    return await auth_service.login(request)
+    return await auth_service.login(request=request)

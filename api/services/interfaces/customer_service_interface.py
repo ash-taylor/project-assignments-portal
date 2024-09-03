@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import List, Optional
 
 from api.database.models import Customer
-from api.schemas.customer import CustomerCreate
+from api.schemas.customer import CustomerCreate, CustomerUpdate
 
 
 class ICustomerService(ABC):
@@ -11,7 +11,15 @@ class ICustomerService(ABC):
         pass
 
     @abstractmethod
-    async def list_customers(self) -> List[Customer]:
+    async def update_customer(
+        self, customer_id: str, customer: CustomerUpdate
+    ) -> Customer:
+        pass
+
+    @abstractmethod
+    async def list_customers(
+        self, projects: bool = False, users: bool = False
+    ) -> List[Customer]:
         pass
 
     @abstractmethod
@@ -19,12 +27,15 @@ class ICustomerService(ABC):
         self,
         name: str | None = None,
         customer_id: str | None = None,
+        projects: bool = False,
+        users: bool = False,
     ) -> Customer:
         pass
 
     @abstractmethod
     async def find_customer(
         self,
+        load_relations: List[str] | None = None,
         name: str | None = None,
         customer_id: str | None = None,
     ) -> Optional[Customer]:

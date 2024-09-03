@@ -48,7 +48,6 @@ class UserService(IUserService):
             email=user.email,
             role=user.role,
         )
-
         persisted_user = await self._user_repository.create(db_user)
 
         access_token = self._auth_service.create_jwt(
@@ -58,25 +57,19 @@ class UserService(IUserService):
                 "id": str(persisted_user.id),
             }
         )
-
         return Token(access_token=access_token, token_type="Bearer")
 
     async def get_user_by_id(self, user_id: str, project: bool = False) -> User:
-        if project:
-            user = await self.find_user("project", user_id=user_id)
-        else:
-            user = await self.find_user(user_id=user_id)
-
+        user = await self.find_user(
+            user_id=user_id, load_relations=["project"] if project else None
+        )
         if user is None:
             ExceptionHandler.raise_http_exception(404, "User not found")
-
         return user
 
     async def list_users(self, projects: bool = False) -> List[User]:
-        return (
-            await self._user_repository.list_all("project")
-            if projects
-            else await self._user_repository.list_all()
+        return await self._user_repository.list_all(
+            load_relations=["project"] if projects else None
         )
 
     async def get_current_user(self, token_data: TokenData) -> User:
@@ -84,7 +77,7 @@ class UserService(IUserService):
 
     async def find_user(
         self,
-        load_relation: str | None = None,
+        load_relations: List[str] | None = None,
         username: str | None = None,
         user_email: str | None = None,
         user_id: str | None = None,
@@ -100,20 +93,17 @@ class UserService(IUserService):
         }
 
         result = await self._user_repository.find(
-            params=params, and_condition=False, load_relation=load_relation
+            params=params, and_condition=False, load_relations=load_relations
         )
 
         if not result or result[0] is None:
             return None
-
         return result[0]
 
     async def delete_user(self, user_id: str) -> None:
         user = await self.find_user(user_id=user_id)
-
         if user is None:
             ExceptionHandler.raise_http_exception(404, "User not found")
-
         await self._user_repository.delete(user)
 
     async def update_user_project(self, user_id: str, project_id: str | None) -> User:
@@ -123,10 +113,6 @@ class UserService(IUserService):
             ExceptionHandler.raise_http_exception(404, "User not found")
 
         updated_user = await self._user_repository.update(
-            parent=user,
-            update_attr="project_id",
-            update_val=project_id,
-            load_relation="project",
+            item=user, updates={"project_id": project_id}, load_relations=["project"]
         )
-
         return updated_user

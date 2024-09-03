@@ -22,3 +22,7 @@ class ExceptionHandler:
         ExceptionHandler.raise_http_exception(
             401, "Unauthorized to perform this action", auth_error=True
         )
+
+    @staticmethod
+    def raise_repository_exception() -> NoReturn:
+        ExceptionHandler.raise_http_exception(500, "Internal Server Error")
