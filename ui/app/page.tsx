@@ -1,18 +1,20 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { getHelloWorld } from './util/apis';
+import { useContext } from 'react';
+
+import AuthContext from '@/app/context/AuthContext';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
 export default function Home() {
-  async function handleClick() {
-    const res = await getHelloWorld();
-
-    console.log(res);
-  }
+  const { user } = useContext(AuthContext);
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <Button onClick={handleClick}>Hello World!</Button>
+    <main className="flex min-h-screen flex-col items-center justify-between">
+      <ProtectedRoute>
+        <div className="h-full flex-col justify-center">
+          Hello World - {user ? `${user.username} is logged in` : 'Loading...'}
+        </div>
+      </ProtectedRoute>
     </main>
   );
 }
