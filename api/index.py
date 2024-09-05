@@ -9,10 +9,13 @@ from api.database.session import db_session_manager
 from api.routers import auth_router, customers_router, projects_router, users_router
 
 
+logging.basicConfig(format="%(asctime)s %(message)s", datefmt="%m/%d/%Y %I:%M:%S %p")
+logging.warning("is when this event was logged.")
+
 logging.basicConfig(
     stream=sys.stdout,
     level=logging.DEBUG if app_config.log_level == "DEBUG" else logging.INFO,
-    format="%(levelname)s:     %(message)s",
+    format="%(levelname)s:     %(funcName)s - %(asctime)s - s%(message)s",
 )
 
 logger = logging.getLogger(__name__)

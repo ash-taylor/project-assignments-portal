@@ -1,10 +1,9 @@
 from typing import Annotated
 
-from fastapi import Depends
+from fastapi import Depends, Request
 from pydantic import UUID4
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.core.config import app_config
 from api.database.interfaces.repository_interface import IRepository
 from api.database.models import Customer, Project, User
 from api.database.repository import Repository
@@ -71,9 +70,12 @@ def get_customer_service(
 
 
 def validate_user(
-    token: Annotated[str, Depends(app_config.oauth2_scheme)],
+    request: Request,
     auth_service: Annotated[IAuthService, Depends(get_auth_service)],
 ) -> TokenData:
+    token = request.cookies.get("access_token")
+    if token is None:
+        ExceptionHandler.raise_credentials_exception()
     return auth_service.decode_jwt(token)
 
 
