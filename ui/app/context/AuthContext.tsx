@@ -1,12 +1,19 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { createContext, useCallback, useMemo, useState } from 'react';
-import axios, { AxiosResponse } from 'axios';
+import {
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import axios from 'axios';
 import { User, UserResponse } from '@/app/models/User';
 import 'core-js/stable/atob';
 import { z } from 'zod';
 import { LoginSchema, RegisterSchema } from '@/schema';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 interface LoginResponse {
   access_token: string;
@@ -26,6 +33,7 @@ const loginRoute = '/auth/login';
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [isReady, setIsReady] = useState<boolean>(false);
   const [user_, setUser] = useState<User | null>(null);
   const user = useMemo(() => user_, [user_]);
   const router = useRouter();
@@ -38,7 +46,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (response.status !== 200) {
         setUser(null);
-        router.push(loginRoute);
+        return router.push(loginRoute);
       }
 
       const fetchedUser = new User(
@@ -57,10 +65,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (JSON.stringify(user) !== JSON.stringify(fetchedUser))
         setUser(fetchedUser);
 
-      router.push('/');
+      return router.push('/');
     } catch (error) {
       console.error('failed to fetch user', user);
-      router.push(loginRoute);
+      return router.push(loginRoute);
     }
   }, [router, user]);
 
@@ -74,14 +82,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         if (response.status !== 200) {
           console.error('Unable to create user', response);
-          router.push(loginRoute);
-          return;
+          return router.push(loginRoute);
         }
 
-        router.push('/');
+        return router.push('/');
       } catch (error) {
         console.error('Create user failed', error);
-        router.push(loginRoute);
+        return router.push(loginRoute);
       }
     },
     [router]
@@ -96,7 +103,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         if (response.status === 401) return router.push(loginRoute);
 
-        router.push('/');
+        return router.push('/');
       } catch (error) {
         console.error('Login Failed', error);
         setUser(null);
@@ -115,9 +122,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [router]);
 
+  useEffect(() => {
+    const checkAuth = async () => {
+      if (!user) {
+        try {
+          await fetchUser();
+        } catch (error) {
+          console.error('Error fetching user:', error);
+        }
+      }
+      setIsReady(true);
+    };
+
+    checkAuth();
+  }, [fetchUser, user]);
+
   return (
     <AuthContext.Provider value={{ user, fetchUser, login, logout, register }}>
-      {children}
+      {isReady ? (
+        children
+      ) : (
+        <div className="min-h-screen flex flex-col items-center justify-center">
+          <LoadingSpinner className="p-3 m-5" />
+          <p className="text-base text-muted-foreground">
+            Loading Project Assignments Portal...
+          </p>
+        </div>
+      )}
     </AuthContext.Provider>
   );
 };
