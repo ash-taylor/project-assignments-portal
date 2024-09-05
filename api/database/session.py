@@ -1,6 +1,8 @@
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
 
+
+from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import (
     AsyncAttrs,
     AsyncConnection,
@@ -21,8 +23,11 @@ class Base(AsyncAttrs, DeclarativeBase):
 class DatabaseSessionManager:
     def __init__(self, host: str):
         self.engine = create_async_engine(
-            host, echo=True if app_config.log_level == "DEBUG" else False
+            host,
+            echo=True if app_config.log_level == "DEBUG" else False,
+            poolclass=NullPool,
         )
+
         self._sessionmaker = async_sessionmaker(
             bind=self.engine,
             class_=AsyncSession,
