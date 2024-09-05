@@ -1,35 +1,23 @@
 'use client';
 
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect } from 'react';
 
 import AuthContext from '@/app/context/AuthContext';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { LoadingScreen } from './ui/loading-screen';
+import { useRouter } from 'next/navigation';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, fetchUser } = useContext(AuthContext);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { user } = useContext(AuthContext);
+  const router = useRouter();
 
   useEffect(() => {
-    const checkAuth = async () => {
-      setIsLoading(true);
-      if (!user) {
-        try {
-          await fetchUser();
-        } catch (error) {
-          console.error('Error fetching user:', error);
-        }
-      }
-      setIsLoading(false);
-    };
+    if (!user) router.push('/auth/login');
+  }, [router, user]);
 
-    checkAuth();
-  }, [fetchUser, user]);
-
-  return isLoading ? (
-    <LoadingScreen message="Loading user dashboard..." />
-  ) : (
+  return user ? (
     children
+  ) : (
+    <LoadingScreen message="Loading user dashboard..." />
   );
 };
 

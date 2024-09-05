@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (response.status !== 200) {
         setUser(null);
-        router.push(loginRoute);
+        return router.push(loginRoute);
       }
 
       const fetchedUser = new User(
@@ -64,10 +64,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (JSON.stringify(user) !== JSON.stringify(fetchedUser))
         setUser(fetchedUser);
 
-      router.push('/');
+      return router.push('/');
     } catch (error) {
       console.error('failed to fetch user', user);
-      router.push(loginRoute);
+      return router.push(loginRoute);
     }
   }, [router, user]);
 
@@ -81,14 +81,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         if (response.status !== 200) {
           console.error('Unable to create user', response);
-          router.push(loginRoute);
-          return;
+          return router.push(loginRoute);
         }
 
-        router.push('/');
+        return router.push('/');
       } catch (error) {
         console.error('Create user failed', error);
-        router.push(loginRoute);
+        return router.push(loginRoute);
       }
     },
     [router]
@@ -103,26 +102,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         if (response.status === 401) return router.push(loginRoute);
 
-        router.push('/');
+        return await fetchUser();
       } catch (error) {
         console.error('Login Failed', error);
         setUser(null);
       }
     },
-    [router]
+    [fetchUser, router]
   );
 
   const logout = useCallback(async () => {
     try {
       await axios.post('/api/logout');
       setUser(null);
-      router.push(loginRoute);
+      return router.push(loginRoute);
     } catch (error) {
       console.error('Logout failed', error);
     }
   }, [router]);
 
   useEffect(() => {
+    axios.defaults.baseURL = window.location.origin;
     const checkAuth = async () => {
       if (!user) await fetchUser();
       setIsReady(true);
