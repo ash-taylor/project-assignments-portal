@@ -16,8 +16,7 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
-    "typescript": "^5",
-    "vercel": "^37.1.0"
+    "typescript": "^5"
   },
-  "packageManager": "pnpm@9.7.0"
+  "packageManager": "pnpm@9.9.0"
 }

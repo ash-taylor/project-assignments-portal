@@ -5,14 +5,9 @@ from fastapi.security import OAuth2PasswordBearer
 
 load_dotenv()
 
-SQLALCHEMY_DATABASE_URL = environ["DB_POSTGRES_URL"]
-TOKEN_URL = environ["TOKEN_URL"]
-JWT_SECRET = environ["JWT_SECRET"]
-JWT_ALGORITHM = environ["JWT_ALGORITHM"]
-ACCESS_TOKEN_EXPIRE_MINUTES = environ["ACCESS_TOKEN_EXPIRE_MINUTES"]
-
 
 class Config:
+    environment = environ["ENVIRONMENT"]
     database_url = environ["DB_POSTGRES_URL"]
     token_url = environ["TOKEN_URL"]
     jwt_secret = environ["JWT_SECRET"]
