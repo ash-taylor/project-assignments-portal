@@ -1,5 +1,3 @@
-const DashboardPage = () => {
-  return <div>You are logged in!</div>;
-};
-
-export default DashboardPage;
+export default function DashboardPage() {
+  return <p>Hello!</p>;
+}

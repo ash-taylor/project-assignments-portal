@@ -6,8 +6,8 @@ import {
   CardHeader,
   CardFooter,
 } from '@/components/ui/card';
-import BackButton from './back-button';
-import { AuthHeader } from './auth-header';
+import BackButton from '@/components/auth/back-button';
+import { AuthHeader } from '@/components/auth/auth-header';
 
 interface CardWrapperProps {
   label: string;

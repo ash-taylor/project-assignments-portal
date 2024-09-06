@@ -1,7 +1,7 @@
 from typing import Annotated
 
-from fastapi import Depends, Request
-from pydantic import UUID4
+from fastapi import Depends, Form, Request
+from pydantic import UUID4, ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.database.interfaces.repository_interface import IRepository
@@ -9,7 +9,7 @@ from api.database.models import Customer, Project, User
 from api.database.repository import Repository
 from api.database.session import db_session_manager
 from api.schemas.auth import TokenData
-from api.schemas.user import UserCreate
+from api.schemas.user import Roles, UserCreate
 from api.services.auth_service import AuthService
 from api.services.customer_service import CustomerService
 from api.services.interfaces.auth_service_interface import IAuthService
@@ -86,11 +86,28 @@ def validate_admin(token: Annotated[TokenData, Depends(validate_user)]) -> Token
 
 
 def hash_password(
-    user: UserCreate,
+    user_name: Annotated[str, Form()],
+    first_name: Annotated[str, Form()],
+    last_name: Annotated[str, Form()],
+    role: Annotated[Roles, Form()],
+    email: Annotated[str, Form()],
+    password: Annotated[str, Form()],
     auth_service: Annotated[IAuthService, Depends(get_auth_service)],
 ) -> UserCreate:
-    user.password = auth_service.hash_pwd(user.password)
-    return user
+    try:
+        user = UserCreate(
+            user_name=user_name,
+            first_name=first_name,
+            last_name=last_name,
+            role=role,
+            email=email,
+            password=password,
+        )
+        user.password = auth_service.hash_pwd(user.password)
+        return user
+    except ValidationError as e:
+        errors = e.errors()
+        ExceptionHandler.raise_http_exception(400, errors[0])
 
 
 def parse_uuid(v: UUID4) -> str:

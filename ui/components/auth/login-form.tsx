@@ -1,8 +1,13 @@
 'use client';
 
-import AuthContext from '@/app/context/AuthContext';
-import CardWrapper from './card-wrapper';
-import { Button } from '@/components/ui/button';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useContext, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+
+import AuthContext from '@/context/AuthContext';
+import CardWrapper from '@/components/auth/card-wrapper';
+import { Button, ButtonLoading } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -13,11 +18,6 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { LoginSchema } from '@/schema';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useContext, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { LoadingSpinner } from '../ui/loading-spinner';
 
 const LoginForm = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -84,15 +84,7 @@ const LoginForm = () => {
           </div>
 
           {isLoading ? (
-            <div className="text-center space-y-4">
-              <div className="flex justify-center">
-                <LoadingSpinner />
-              </div>
-
-              <p className="text-base text-muted-foreground">
-                Logging in user...
-              </p>
-            </div>
+            <ButtonLoading message="Logging in user..." />
           ) : (
             <Button type="submit" className="w-full">
               Log In

@@ -1,7 +1,8 @@
 import logging
 from typing import Annotated, List, Union
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 
+from api.core.config import app_config
 from api.dependencies import (
     get_user_service,
     hash_password,
@@ -10,7 +11,7 @@ from api.dependencies import (
     validate_admin,
     validate_user,
 )
-from api.schemas.auth import Token, TokenData
+from api.schemas.auth import TokenData
 from api.schemas.relationships import UserWithProjectOut
 from api.schemas.user import UserCreate, UserOut
 from api.services.interfaces.user_service_interface import IUserService
@@ -20,13 +21,24 @@ router = APIRouter(prefix="/api")
 logger = logging.getLogger(__name__)
 
 
-@router.post("/user", tags=["users"], response_model=Token)
+@router.post("/user", tags=["users"], status_code=204)
 async def create_user(
+    response: Response,
     user: Annotated[UserCreate, Depends(hash_password)],
     user_service: Annotated[IUserService, Depends(get_user_service)],
 ):
     logger.info("user: %s invoked POST /user", user.user_name)
-    return await user_service.create_user(user=user)
+    access_token = (await user_service.create_user(user=user)).access_token
+
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        max_age=(int(app_config.access_token_exp_mins) * 60),
+        expires=(int(app_config.access_token_exp_mins) * 60),
+        secure=True,
+        samesite="strict",
+    )
 
 
 @router.get(
