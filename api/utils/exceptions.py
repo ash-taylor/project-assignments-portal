@@ -1,4 +1,4 @@
-from typing import NoReturn
+from typing import Any, NoReturn
 from fastapi import HTTPException
 
 
@@ -6,7 +6,7 @@ class ExceptionHandler:
 
     @staticmethod
     def raise_http_exception(
-        code: int, message: str, auth_error: bool = False
+        code: int, message: Any, auth_error: bool = False
     ) -> NoReturn:
         headers = {"WWW-Authenticate": "Bearer"} if auth_error else None
         raise HTTPException(status_code=code, detail=message, headers=headers)

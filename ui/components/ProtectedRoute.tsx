@@ -1,10 +1,10 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useContext, useEffect } from 'react';
 
-import AuthContext from '@/app/context/AuthContext';
-import { LoadingScreen } from './ui/loading-screen';
-import { useRouter } from 'next/navigation';
+import AuthContext from '@/context/AuthContext';
+import { LoadingScreen } from '@/components/ui/loading-screen';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user } = useContext(AuthContext);

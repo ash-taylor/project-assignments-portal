@@ -9,15 +9,10 @@ import {
   useState,
 } from 'react';
 import axios from 'axios';
-import { User, UserResponse } from '@/app/models/User';
+import { User, UserResponse } from '@/models/User';
 import { z } from 'zod';
 import { LoginSchema, RegisterSchema } from '@/schema';
 import { LoadingScreen } from '@/components/ui/loading-screen';
-
-interface LoginResponse {
-  access_token: string;
-  token_type: 'Bearer';
-}
 
 type AuthContextType = {
   user: User | null;
@@ -64,7 +59,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (JSON.stringify(user) !== JSON.stringify(fetchedUser))
         setUser(fetchedUser);
 
-      return router.push('/');
+      return router.push('/dashboard');
     } catch (error) {
       console.error('failed to fetch user', user);
       return router.push(loginRoute);
@@ -74,23 +69,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const register = useCallback(
     async (data: z.infer<typeof RegisterSchema>) => {
       try {
-        const body = JSON.stringify(data);
-        const response = await axios.post<LoginResponse>('/api/user', body, {
-          headers: { 'Content-Type': 'application/json' },
+        const response = await axios.post('/api/user', data, {
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         });
 
-        if (response.status !== 200) {
-          console.error('Unable to create user', response);
+        if (response.status !== 204) {
+          console.error('Failed to create user', response);
           return router.push(loginRoute);
         }
 
-        return router.push('/');
+        return await fetchUser();
       } catch (error) {
         console.error('Create user failed', error);
         return router.push(loginRoute);
       }
     },
-    [router]
+    [fetchUser, router]
   );
 
   const login = useCallback(
@@ -105,7 +99,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return await fetchUser();
       } catch (error) {
         console.error('Login Failed', error);
-        setUser(null);
       }
     },
     [fetchUser, router]

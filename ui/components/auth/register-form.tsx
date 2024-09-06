@@ -1,8 +1,13 @@
 'use client';
 
-import AuthContext from '@/app/context/AuthContext';
-import CardWrapper from './card-wrapper';
-import { Button } from '@/components/ui/button';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useContext, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+
+import AuthContext from '@/context/AuthContext';
+import CardWrapper from '@/components/auth/card-wrapper';
+import { Button, ButtonLoading } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -20,11 +25,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { RegisterSchema, UserRoles } from '@/schema';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useContext } from 'react';
-import { useForm } from 'react-hook-form';
 
 const RegisterForm = () => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const { register } = useContext(AuthContext);
   const form = useForm({
     resolver: zodResolver(RegisterSchema),
@@ -39,6 +42,12 @@ const RegisterForm = () => {
     },
   });
 
+  const handleRegister = async (data: z.infer<typeof RegisterSchema>) => {
+    setIsLoading(true);
+    await register(data);
+    setTimeout(() => setIsLoading(false), 1000);
+  };
+
   return (
     <CardWrapper
       label="Create an account"
@@ -47,7 +56,10 @@ const RegisterForm = () => {
       backButtonLabel="Already have an account? Login here."
     >
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(register)} className="space-y-6">
+        <form
+          onSubmit={form.handleSubmit(handleRegister)}
+          className="space-y-6"
+        >
           <div className="space-y-4">
             <FormField
               control={form.control}
@@ -177,9 +189,14 @@ const RegisterForm = () => {
               )}
             />
           </div>
-          <Button type="submit" className="w-full">
-            Register
-          </Button>
+
+          {isLoading ? (
+            <ButtonLoading message="Registering user..." />
+          ) : (
+            <Button type="submit" className="w-full">
+              Register
+            </Button>
+          )}
         </form>
       </Form>
     </CardWrapper>

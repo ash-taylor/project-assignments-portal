@@ -1,6 +1,13 @@
 from enum import Enum
 from typing import Optional
-from pydantic import UUID4, BaseModel, ConfigDict, EmailStr, Field, field_validator
+from pydantic import (
+    UUID4,
+    BaseModel,
+    ConfigDict,
+    EmailStr,
+    Field,
+    field_validator,
+)
 
 
 class Roles(str, Enum):
@@ -18,7 +25,7 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
-    password: str
+    password: str = Field(min_length=8, pattern="^[A-Za-z]")
 
     @field_validator("user_name", "email", mode="before")
     def to_lowercase(cls, v):  # pylint: disable=no-self-argument
@@ -40,6 +47,7 @@ class UserCreate(UserBase):
                     "last_name": "Doe",
                     "role": "MANAGER",
                     "email": "john@email.com",
+                    "confirm_password": "testPassword",
                 }
             ]
         }
