@@ -15,8 +15,7 @@
     "ui:lint": "pnpm --filter ui lint"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2",
-    "typescript": "^5"
+    "concurrently": "^8.2.2"
   },
   "packageManager": "pnpm@9.9.0"
 }
