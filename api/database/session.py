@@ -24,7 +24,7 @@ class DatabaseSessionManager:
     def __init__(self, host: str):
         self.engine = create_async_engine(
             host,
-            echo=True if app_config.log_level == "DEBUG" else False,
+            echo=True if app_config.db_echo == "TRUE" else False,
             poolclass=NullPool,
         )
 
