@@ -24,7 +24,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { RegisterSchema, UserRoles } from '@/schema';
+import { RegisterSchema } from '@/schema';
+import { UserRole } from '@/models/User';
 
 const RegisterForm = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -36,7 +37,7 @@ const RegisterForm = () => {
       email: '',
       first_name: '',
       last_name: '',
-      role: UserRoles.ENGINEER,
+      role: UserRole.ENGINEER,
       password: '',
       confirm_password: '',
     },
@@ -53,7 +54,7 @@ const RegisterForm = () => {
       label="Create an account"
       title="Register"
       backButtonHref="/auth/login"
-      backButtonLabel="Already have an account? Login here."
+      backButtonLabel="Already have an account? Log in here."
     >
       <Form {...form}>
         <form
@@ -128,9 +129,7 @@ const RegisterForm = () => {
                 <FormItem>
                   <FormLabel>Role</FormLabel>
                   <Select
-                    onValueChange={(value) =>
-                      field.onChange(value as UserRoles)
-                    }
+                    onValueChange={(value) => field.onChange(value as UserRole)}
                     defaultValue={field.value}
                   >
                     <FormControl>
@@ -140,11 +139,11 @@ const RegisterForm = () => {
                     </FormControl>
                     <FormMessage />
                     <SelectContent>
-                      <SelectItem value={UserRoles.ENGINEER}>
+                      <SelectItem value={UserRole.ENGINEER}>
                         Engineer
                       </SelectItem>
-                      <SelectItem value={UserRoles.MANAGER}>Manager</SelectItem>
-                      <SelectItem value={UserRoles.CUSTOMER}>
+                      <SelectItem value={UserRole.MANAGER}>Manager</SelectItem>
+                      <SelectItem value={UserRole.CUSTOMER}>
                         Customer
                       </SelectItem>
                     </SelectContent>

@@ -1,3 +1,9 @@
+import GeneralCard from '@/components/cards/General';
+
 export default function DashboardPage() {
-  return <p>Hello!</p>;
+  return (
+    <div>
+      <GeneralCard />
+    </div>
+  );
 }

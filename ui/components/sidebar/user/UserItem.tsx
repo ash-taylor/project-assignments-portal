@@ -9,7 +9,7 @@ const UserItem = () => {
   const { user } = useContext(AuthContext);
 
   return (
-    <div className="min-h-15 h-15 flex items-center border rounded-[10px] p-1">
+    <div className="min-h-15 h-15 flex items-center p-1">
       <Avatar>
         <AvatarFallback>
           {user!.firstName[0] + user!.lastName[0]}
@@ -18,10 +18,10 @@ const UserItem = () => {
 
       <div className="p-1 ml-2">
         <h4 className="text-2xl font-semibold tracking-tight">
-          {user?.username}
+          Hey {user?.firstName}!
         </h4>
         <p className="text-xs text-muted-foreground">
-          {user?.admin ? 'admin account' : 'user account'}
+          {user?.username} - [{user?.admin ? 'admin account' : 'user account'}]
         </p>
       </div>
     </div>

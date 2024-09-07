@@ -14,6 +14,7 @@ class Config:
     jwt_algorithm = environ["JWT_ALGORITHM"]
     access_token_exp_mins = environ["ACCESS_TOKEN_EXPIRE_MINUTES"]
     log_level = environ["LOG_LEVEL"]
+    db_echo = environ["DB_ECHO"]
     oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 

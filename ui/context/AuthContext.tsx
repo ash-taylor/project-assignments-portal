@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import {
   createContext,
@@ -8,11 +9,12 @@ import {
   useMemo,
   useState,
 } from 'react';
-import axios from 'axios';
-import { User, UserResponse } from '@/models/User';
 import { z } from 'zod';
+
 import { LoginSchema, RegisterSchema } from '@/schema';
 import { LoadingScreen } from '@/components/ui/loading-screen';
+import { createUser, logInUser, logOutUser, whoAmI } from '@/lib/api';
+import { User } from '@/models/User';
 
 type AuthContextType = {
   user: User | null;
@@ -34,9 +36,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const fetchUser = useCallback(async () => {
     try {
-      const response = await axios.get<UserResponse>('api/users/me', {
-        withCredentials: true,
-      });
+      const response = await whoAmI();
 
       if (response.status !== 200) {
         setUser(null);
@@ -69,9 +69,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const register = useCallback(
     async (data: z.infer<typeof RegisterSchema>) => {
       try {
-        const response = await axios.post('/api/user', data, {
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        });
+        const response = await createUser(data);
 
         if (response.status !== 204) {
           console.error('Failed to create user', response);
@@ -90,9 +88,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const login = useCallback(
     async (data: z.infer<typeof LoginSchema>) => {
       try {
-        const response = await axios.post('/api/login', data, {
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        });
+        const response = await logInUser(data);
 
         if (response.status === 401) return router.push(loginRoute);
 
@@ -106,7 +102,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logout = useCallback(async () => {
     try {
-      await axios.post('/api/logout');
+      await logOutUser();
+
       setUser(null);
       return router.push(loginRoute);
     } catch (error) {

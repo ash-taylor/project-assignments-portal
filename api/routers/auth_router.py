@@ -4,7 +4,8 @@ from fastapi import APIRouter, Depends, Response
 from fastapi.security import OAuth2PasswordRequestForm
 
 from api.core.config import app_config
-from api.dependencies import get_auth_service
+from api.dependencies import get_auth_service, validate_user
+from api.schemas.auth import TokenData
 from api.services.interfaces.auth_service_interface import IAuthService
 
 
@@ -31,3 +32,12 @@ async def login(
         secure=True,
         samesite="strict",
     )
+
+
+@router.post("/logout", status_code=205)
+async def logout(
+    response: Response,
+    token: Annotated[TokenData, Depends(validate_user)],
+):
+    logger.info("user %s invoked POST /logout", token.username)
+    response.delete_cookie("access_token")
