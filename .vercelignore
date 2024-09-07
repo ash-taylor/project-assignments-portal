@@ -1,0 +1,9 @@
+*.log
+node_modules/
+dist/
+coverage/
+.next/cache
+.env
+test/
+__pycache__/
+alembic
