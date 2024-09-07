@@ -1,10 +1,5 @@
+import { UserRole } from '@/models/User';
 import { z } from 'zod';
-
-export enum UserRoles {
-  MANAGER = 'MANAGER',
-  ENGINEER = 'ENGINEER',
-  CUSTOMER = 'CUSTOMER',
-}
 
 export const RegisterSchema = z
   .object({
@@ -14,7 +9,7 @@ export const RegisterSchema = z
       .length(8, { message: 'Username must be 8 characters' }),
     first_name: z.string().min(1, 'Please enter your first name'),
     last_name: z.string().min(1, { message: 'Please enter your last name' }),
-    role: z.nativeEnum(UserRoles, {
+    role: z.nativeEnum(UserRole, {
       message: 'Role most be either "MANAGER", "ENGINEER" or "CUSTOMER"',
     }),
     password: z
