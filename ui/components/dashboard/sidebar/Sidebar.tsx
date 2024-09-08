@@ -5,20 +5,41 @@ import {
   FilesIcon,
   GroupIcon,
   HandshakeIcon,
+  LayoutDashboardIcon,
   UserRoundPlusIcon,
   UsersRoundIcon,
 } from 'lucide-react';
 import UserItem from './user/UserItem';
+
+import { Fragment } from 'react';
 import {
   Command,
   CommandGroup,
   CommandItem,
   CommandList,
   CommandSeparator,
-} from '../ui/command';
+} from '@/components/ui/command';
 
-const Sidebar = () => {
+interface SidebarProps {
+  onNavigate: (link: string) => void;
+}
+
+const Sidebar = ({ onNavigate }: SidebarProps) => {
+  const handleNavigation = (link: string) => {
+    onNavigate(link);
+  };
+
   const menuList = [
+    {
+      group: 'Dashboard',
+      items: [
+        {
+          link: '/dashboard',
+          icon: <LayoutDashboardIcon />,
+          text: 'Dashboard',
+        },
+      ],
+    },
     {
       group: 'Customers',
       items: [
@@ -71,23 +92,23 @@ const Sidebar = () => {
       <div className="grow">
         <Command style={{ overflow: 'visible' }}>
           <CommandList style={{ overflow: 'visible' }}>
-            {menuList.map((menu, key: number) => {
-              return (
-                <>
-                  <CommandSeparator />
-                  <CommandGroup key={key} heading={menu.group}>
-                    {menu.items.map((option, idx) => (
-                      <CommandItem
-                        key={idx}
-                        className="flex gap-2 cursor-pointer"
-                      >
-                        {option.icon} {option.text}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </>
-              );
-            })}
+            {menuList.map((menu, key: number) => (
+              <Fragment key={key}>
+                <CommandSeparator />
+                <CommandGroup heading={menu.group}>
+                  {menu.items.map((option, idx) => (
+                    <CommandItem
+                      key={idx}
+                      className={`flex gap-2 cursor-pointer`}
+                      onSelect={() => handleNavigation(option.link)}
+                    >
+                      {option.icon}
+                      {option.text}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </Fragment>
+            ))}
           </CommandList>
         </Command>
       </div>

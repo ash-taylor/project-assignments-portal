@@ -4,3 +4,8 @@ export interface CustomerResponse {
   id: string;
   active: boolean;
 }
+
+export interface CustomerCreate {
+  name: string;
+  details?: string;
+}

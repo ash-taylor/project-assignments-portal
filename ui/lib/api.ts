@@ -1,3 +1,4 @@
+import { CustomerCreate, CustomerResponse } from '@/models/Customer';
 import {
   ProjectWithUserResponse,
   UserWithProjectResponse,
@@ -24,3 +25,8 @@ export const logOutUser = async () => await axios.post('/api/logout');
 
 export const getProjectsWithUsers = async () =>
   await axios.get<[ProjectWithUserResponse]>('api/projects?users=true');
+
+export const createCustomer = async (customer: CustomerCreate) =>
+  await axios.post<CustomerResponse>('/api/customer', customer, {
+    headers: { 'Content-Type': 'application/json' },
+  });

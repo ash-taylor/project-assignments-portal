@@ -18,5 +18,5 @@
   "devDependencies": {
     "concurrently": "^8.2.2"
   },
-  "packageManager": "pnpm@9.9.0"
+  "packageManager": "pnpm@9.7.0"
 }
