@@ -30,3 +30,15 @@ export const LoginSchema = z.object({
     .string()
     .min(8, { message: 'Password must be at least 8 characters long.' }),
 });
+
+export const AddCustomerSchema = z.object({
+  name: z
+    .string()
+    .min(3, { message: 'Customer name must be at least 3 characters' }),
+  details: z
+    .string()
+    .max(100, {
+      message: 'Customer details must be a maximum of 100 characters',
+    })
+    .optional(),
+});

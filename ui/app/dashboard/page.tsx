@@ -1,3 +1,5 @@
+'use client';
+
 import ProjectsChart from '@/components/cards/ProjectsChart';
 
 const DashboardPage = () => {

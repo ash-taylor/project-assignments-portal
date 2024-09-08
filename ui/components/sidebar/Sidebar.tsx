@@ -5,6 +5,7 @@ import {
   FilesIcon,
   GroupIcon,
   HandshakeIcon,
+  LayoutDashboardIcon,
   UserRoundPlusIcon,
   UsersRoundIcon,
 } from 'lucide-react';
@@ -17,18 +18,37 @@ import {
   CommandSeparator,
 } from '../ui/command';
 
+import { usePathname, useRouter } from 'next/navigation';
+
 const Sidebar = () => {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const handleNavigation = (link: string) => {
+    router.push(link);
+  };
+
   const menuList = [
+    {
+      group: 'Dashboard',
+      items: [
+        {
+          link: '/dashboard',
+          icon: <LayoutDashboardIcon />,
+          text: 'Dashboard',
+        },
+      ],
+    },
     {
       group: 'Customers',
       items: [
         {
-          link: '/add-customer',
+          link: '/dashboard/add-customer',
           icon: <HandshakeIcon />,
           text: 'Add New Customer',
         },
         {
-          link: '/view-customers',
+          link: '/dashboard/view-customers',
           icon: <GroupIcon />,
           text: 'View All Customers',
         },
@@ -38,7 +58,7 @@ const Sidebar = () => {
       group: 'Projects',
       items: [
         {
-          link: '/add-project',
+          link: '/dashboard/add-project',
           icon: <FilePlusIcon />,
           text: 'Add New Project',
         },
@@ -53,12 +73,12 @@ const Sidebar = () => {
       group: 'Users',
       items: [
         {
-          link: '/add-user',
+          link: '/dashboard/add-user',
           icon: <UserRoundPlusIcon />,
           text: 'Add New User',
         },
         {
-          link: '/view-users',
+          link: '/dashboard/view-users',
           icon: <UsersRoundIcon />,
           text: 'View All Users',
         },
@@ -79,9 +99,13 @@ const Sidebar = () => {
                     {menu.items.map((option, idx) => (
                       <CommandItem
                         key={idx}
-                        className="flex gap-2 cursor-pointer"
+                        className={`flex gap-2 cursor-pointer ${
+                          pathname === option.link ? 'active' : ''
+                        }`}
+                        onSelect={() => handleNavigation(option.link)}
                       >
-                        {option.icon} {option.text}
+                        {option.icon}
+                        {option.text}
                       </CommandItem>
                     ))}
                   </CommandGroup>

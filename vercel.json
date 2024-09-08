@@ -1,5 +1,4 @@
 {
-  "version": 2,
   "builds": [
     {
       "src": "ui/package.json",
@@ -10,14 +9,14 @@
       "use": "@vercel/python"
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/index.py"
+      "source": "/api/(.*)",
+      "destination": "/api/index.py"
     },
     {
-      "src": "/(.*)",
-      "dest": "/ui/$1"
+      "source": "/(.*)",
+      "destination": "/ui/$1"
     }
   ]
 }
