@@ -1,0 +1,4 @@
+.env
+alembic/
+dev-requirements.txt
+__pycache__

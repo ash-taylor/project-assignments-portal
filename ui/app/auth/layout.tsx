@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+
 export const metadata: Metadata = {
   title: 'Project Assignments Portal - Log In or Create an Account',
 };

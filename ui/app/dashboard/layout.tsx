@@ -1,11 +1,9 @@
+'use client';
+
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Header from '@/components/header/Header';
 import Sidebar from '@/components/sidebar/Sidebar';
-import type { Metadata } from 'next';
 
-export const metadata: Metadata = {
-  title: 'Project Assignments Portal - Dashboard',
-};
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <ProtectedRoute>
