@@ -10,22 +10,23 @@ import {
   UsersRoundIcon,
 } from 'lucide-react';
 import UserItem from './user/UserItem';
+
+import { Fragment } from 'react';
 import {
   Command,
   CommandGroup,
   CommandItem,
   CommandList,
   CommandSeparator,
-} from '../ui/command';
+} from '@/components/ui/command';
 
-import { usePathname, useRouter } from 'next/navigation';
+interface SidebarProps {
+  onNavigate: (link: string) => void;
+}
 
-const Sidebar = () => {
-  const router = useRouter();
-  const pathname = usePathname();
-
+const Sidebar = ({ onNavigate }: SidebarProps) => {
   const handleNavigation = (link: string) => {
-    router.push(link);
+    onNavigate(link);
   };
 
   const menuList = [
@@ -43,12 +44,12 @@ const Sidebar = () => {
       group: 'Customers',
       items: [
         {
-          link: '/dashboard/add-customer',
+          link: '/add-customer',
           icon: <HandshakeIcon />,
           text: 'Add New Customer',
         },
         {
-          link: '/dashboard/view-customers',
+          link: '/view-customers',
           icon: <GroupIcon />,
           text: 'View All Customers',
         },
@@ -58,7 +59,7 @@ const Sidebar = () => {
       group: 'Projects',
       items: [
         {
-          link: '/dashboard/add-project',
+          link: '/add-project',
           icon: <FilePlusIcon />,
           text: 'Add New Project',
         },
@@ -73,12 +74,12 @@ const Sidebar = () => {
       group: 'Users',
       items: [
         {
-          link: '/dashboard/add-user',
+          link: '/add-user',
           icon: <UserRoundPlusIcon />,
           text: 'Add New User',
         },
         {
-          link: '/dashboard/view-users',
+          link: '/view-users',
           icon: <UsersRoundIcon />,
           text: 'View All Users',
         },
@@ -91,27 +92,23 @@ const Sidebar = () => {
       <div className="grow">
         <Command style={{ overflow: 'visible' }}>
           <CommandList style={{ overflow: 'visible' }}>
-            {menuList.map((menu, key: number) => {
-              return (
-                <>
-                  <CommandSeparator />
-                  <CommandGroup key={key} heading={menu.group}>
-                    {menu.items.map((option, idx) => (
-                      <CommandItem
-                        key={idx}
-                        className={`flex gap-2 cursor-pointer ${
-                          pathname === option.link ? 'active' : ''
-                        }`}
-                        onSelect={() => handleNavigation(option.link)}
-                      >
-                        {option.icon}
-                        {option.text}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </>
-              );
-            })}
+            {menuList.map((menu, key: number) => (
+              <Fragment key={key}>
+                <CommandSeparator />
+                <CommandGroup heading={menu.group}>
+                  {menu.items.map((option, idx) => (
+                    <CommandItem
+                      key={idx}
+                      className={`flex gap-2 cursor-pointer`}
+                      onSelect={() => handleNavigation(option.link)}
+                    >
+                      {option.icon}
+                      {option.text}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </Fragment>
+            ))}
           </CommandList>
         </Command>
       </div>

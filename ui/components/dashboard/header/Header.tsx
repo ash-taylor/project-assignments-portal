@@ -1,8 +1,6 @@
 'use client';
 
-import AuthContext from '@/context/AuthContext';
-import { UserRoundIcon } from 'lucide-react';
-import { useContext, useState } from 'react';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,8 +8,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
-import { Button } from '../ui/button';
+} from '@/components/ui/dropdown-menu';
+import AuthContext from '@/context/AuthContext';
+import { UserRoundIcon } from 'lucide-react';
+import { useContext, useState } from 'react';
 
 export default function Header() {
   const [loggingOut, setLoggingOut] = useState<boolean>(false);

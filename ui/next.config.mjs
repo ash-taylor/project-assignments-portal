@@ -3,7 +3,6 @@ import './envConfig.mjs';
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   rewrites: async () => {
     if (process.env.ENVIRONMENT === 'development') {
       return [

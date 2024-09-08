@@ -1,7 +1,7 @@
 'use client';
 
-import AddCustomerCard from '@/components/cards/AddCustomer';
-import AddCustomerForm from '@/components/customers/add-customer-form';
+import AddCustomerCard from '../cards/AddCustomer';
+import AddCustomerForm from '../customers/add-customer-form';
 
 const AddCustomerPage = () => {
   return (
