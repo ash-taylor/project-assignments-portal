@@ -1,3 +1,11 @@
+import { ProjectResponse } from './Project';
+
+export enum UserRole {
+  MANAGER = 'MANAGER',
+  ENGINEER = 'ENGINEER',
+  CUSTOMER = 'CUSTOMER',
+}
+
 export class User {
   constructor(
     public active: boolean,
@@ -13,23 +21,29 @@ export class User {
   ) {}
 }
 
-export interface ProjectResponse {
-  name: string;
-  status: string;
-  details: string;
-  customer_id: string;
-  id: string;
-}
-
 export interface UserResponse {
   user_name: string;
   first_name: string;
   last_name: string;
-  role: string;
+  role: UserRole;
   email: string;
   id: string;
   admin: boolean;
   active: boolean;
   project_id: string | null;
-  project: ProjectResponse | null;
+}
+
+export interface UserCreate {
+  role: UserRole;
+  email: string;
+  password: string;
+  user_name: string;
+  first_name: string;
+  last_name: string;
+  confirm_password: string;
+}
+
+export interface UserLogin {
+  username: string;
+  password: string;
 }

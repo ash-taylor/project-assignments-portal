@@ -1,13 +1,13 @@
 'use client';
 
+import AuthContext from '@/context/AuthContext';
+import { UserRole } from '@/models/User';
+import { RegisterSchema } from '@/schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useContext, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-
-import AuthContext from '@/context/AuthContext';
-import CardWrapper from '@/components/auth/card-wrapper';
-import { Button, ButtonLoading } from '@/components/ui/button';
+import CardWrapper from './card-wrapper';
 import {
   Form,
   FormControl,
@@ -15,16 +15,16 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from '../ui/form';
+import { Input } from '../ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { RegisterSchema, UserRoles } from '@/schema';
+} from '../ui/select';
+import { Button, ButtonLoading } from '../ui/button';
 
 const RegisterForm = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -36,24 +36,22 @@ const RegisterForm = () => {
       email: '',
       first_name: '',
       last_name: '',
-      role: UserRoles.ENGINEER,
+      role: UserRole.ENGINEER,
       password: '',
       confirm_password: '',
     },
   });
-
   const handleRegister = async (data: z.infer<typeof RegisterSchema>) => {
     setIsLoading(true);
     await register(data);
     setTimeout(() => setIsLoading(false), 1000);
   };
-
   return (
     <CardWrapper
       label="Create an account"
       title="Register"
       backButtonHref="/auth/login"
-      backButtonLabel="Already have an account? Login here."
+      backButtonLabel="Already have an account? Log in here."
     >
       <Form {...form}>
         <form
@@ -128,9 +126,7 @@ const RegisterForm = () => {
                 <FormItem>
                   <FormLabel>Role</FormLabel>
                   <Select
-                    onValueChange={(value) =>
-                      field.onChange(value as UserRoles)
-                    }
+                    onValueChange={(value) => field.onChange(value as UserRole)}
                     defaultValue={field.value}
                   >
                     <FormControl>
@@ -140,11 +136,11 @@ const RegisterForm = () => {
                     </FormControl>
                     <FormMessage />
                     <SelectContent>
-                      <SelectItem value={UserRoles.ENGINEER}>
+                      <SelectItem value={UserRole.ENGINEER}>
                         Engineer
                       </SelectItem>
-                      <SelectItem value={UserRoles.MANAGER}>Manager</SelectItem>
-                      <SelectItem value={UserRoles.CUSTOMER}>
+                      <SelectItem value={UserRole.MANAGER}>Manager</SelectItem>
+                      <SelectItem value={UserRole.CUSTOMER}>
                         Customer
                       </SelectItem>
                     </SelectContent>
@@ -189,7 +185,6 @@ const RegisterForm = () => {
               )}
             />
           </div>
-
           {isLoading ? (
             <ButtonLoading message="Registering user..." />
           ) : (
@@ -202,5 +197,4 @@ const RegisterForm = () => {
     </CardWrapper>
   );
 };
-
 export default RegisterForm;

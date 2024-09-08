@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import {
   createContext,
@@ -8,11 +9,12 @@ import {
   useMemo,
   useState,
 } from 'react';
-import axios from 'axios';
-import { User, UserResponse } from '@/models/User';
 import { z } from 'zod';
-import { LoginSchema, RegisterSchema } from '@/schema';
+
 import { LoadingScreen } from '@/components/ui/loading-screen';
+import { createUser, logInUser, logOutUser, whoAmI } from '@/lib/api';
+import { User } from '@/models/User';
+import { LoginSchema, RegisterSchema } from '@/schema';
 
 type AuthContextType = {
   user: User | null;
@@ -21,11 +23,8 @@ type AuthContextType = {
   logout: () => void;
   register: (data: z.infer<typeof RegisterSchema>) => Promise<void>;
 };
-
 const loginRoute = '/auth/login';
-
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
-
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isReady, setIsReady] = useState<boolean>(false);
   const [user_, setUser] = useState<User | null>(null);
@@ -34,15 +33,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const fetchUser = useCallback(async () => {
     try {
-      const response = await axios.get<UserResponse>('api/users/me', {
-        withCredentials: true,
-      });
+      const response = await whoAmI();
 
       if (response.status !== 200) {
         setUser(null);
         return router.push(loginRoute);
       }
-
       const fetchedUser = new User(
         response.data.active,
         response.data.id,
@@ -55,29 +51,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         response.data.project_id,
         response.data.project
       );
-
       if (JSON.stringify(user) !== JSON.stringify(fetchedUser))
         setUser(fetchedUser);
-
       return router.push('/dashboard');
     } catch (error) {
       console.error('failed to fetch user', user);
       return router.push(loginRoute);
     }
   }, [router, user]);
-
   const register = useCallback(
     async (data: z.infer<typeof RegisterSchema>) => {
       try {
-        const response = await axios.post('/api/user', data, {
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        });
+        const response = await createUser(data);
 
         if (response.status !== 204) {
           console.error('Failed to create user', response);
           return router.push(loginRoute);
         }
-
         return await fetchUser();
       } catch (error) {
         console.error('Create user failed', error);
@@ -86,13 +76,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     },
     [fetchUser, router]
   );
-
   const login = useCallback(
     async (data: z.infer<typeof LoginSchema>) => {
       try {
-        const response = await axios.post('/api/login', data, {
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        });
+        const response = await logInUser(data);
 
         if (response.status === 401) return router.push(loginRoute);
 
@@ -106,24 +93,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logout = useCallback(async () => {
     try {
-      await axios.post('/api/logout');
+      await logOutUser();
+
       setUser(null);
       return router.push(loginRoute);
     } catch (error) {
       console.error('Logout failed', error);
     }
   }, [router]);
-
   useEffect(() => {
     axios.defaults.baseURL = window.location.origin;
     const checkAuth = async () => {
       if (!user) await fetchUser();
       setIsReady(true);
     };
-
     checkAuth();
   }, [user, fetchUser]);
-
   return (
     <AuthContext.Provider value={{ user, fetchUser, login, logout, register }}>
       {isReady ? (
@@ -134,5 +119,4 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     </AuthContext.Provider>
   );
 };
-
 export default AuthContext;

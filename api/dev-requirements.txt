@@ -1,0 +1,6 @@
+annotated-types==0.7.0
+alembic==1.13.2
+mypy==1.11.1
+mypy-extensions==1.0.0
+types-passlib==1.7.7.20240327
+typing_extensions==4.12.2

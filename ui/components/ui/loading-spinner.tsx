@@ -8,17 +8,23 @@ const spinnerVariants =
 
 interface LoadingSpinnerProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
+  message?: string;
 }
 
 const LoadingSpinner = React.forwardRef<HTMLDivElement, LoadingSpinnerProps>(
   (props, ref) => {
     const { className, ...rest } = props;
     return (
-      <div ref={ref} className={cn(spinnerVariants, className)} {...rest} />
+      <>
+        <div ref={ref} className={cn(spinnerVariants, className)} {...rest} />
+        {props.message && (
+          <p className="text-base text-muted-foreground pt-5">
+            {props.message}
+          </p>
+        )}
+      </>
     );
   }
 );
-
 LoadingSpinner.displayName = 'LoadingSpinner';
-
 export { LoadingSpinner };
