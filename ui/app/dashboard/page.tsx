@@ -1,7 +1,11 @@
-export default function DashboardPage() {
+import ProjectsChart from '@/components/cards/ProjectsChart';
+
+const DashboardPage = () => {
   return (
     <div>
-      <p>Hello!</p>
+      <ProjectsChart />
     </div>
   );
-}
+};
+
+export default DashboardPage;

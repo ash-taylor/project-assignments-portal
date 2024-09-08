@@ -1,4 +1,6 @@
 .env
 alembic/
 dev-requirements.txt
-__pycache__
+__pycache__/
+*.pyc
+.venv/
