@@ -41,19 +41,17 @@ const RegisterForm = () => {
       confirm_password: '',
     },
   });
-
   const handleRegister = async (data: z.infer<typeof RegisterSchema>) => {
     setIsLoading(true);
     await register(data);
     setTimeout(() => setIsLoading(false), 1000);
   };
-
   return (
     <CardWrapper
       label="Create an account"
       title="Register"
       backButtonHref="/auth/login"
-      backButtonLabel="Already have an account? Login here."
+      backButtonLabel="Already have an account? Log in here."
     >
       <Form {...form}>
         <form
@@ -187,7 +185,6 @@ const RegisterForm = () => {
               )}
             />
           </div>
-
           {isLoading ? (
             <ButtonLoading message="Registering user..." />
           ) : (
@@ -200,5 +197,4 @@ const RegisterForm = () => {
     </CardWrapper>
   );
 };
-
 export default RegisterForm;
