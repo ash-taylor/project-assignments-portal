@@ -17,38 +17,60 @@ import {
 import { Input } from '../ui/input';
 
 import { Button, ButtonLoading } from '../ui/button';
-import { createCustomer } from '@/lib/api';
+import { createCustomer, updateCustomer } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { AxiosError } from 'axios';
 
-const AddCustomerForm = () => {
+interface AddFormProps {
+  formType: 'add';
+}
+
+interface EditFormProps {
+  formType: 'edit';
+  customerId: string;
+  customerName: string;
+  customerDetails?: string;
+  handleRefresh: () => void;
+}
+
+type CustomerFormProps = AddFormProps | EditFormProps;
+
+const CustomerForm = (props: CustomerFormProps) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { toast } = useToast();
 
   const form = useForm({
     resolver: zodResolver(AddCustomerSchema),
     defaultValues: {
-      name: '',
-      details: '',
+      name: props.formType === 'edit' ? props.customerName : '',
+      details: props.formType === 'edit' ? props.customerDetails || '' : '',
     },
   });
 
-  const handleAdd = async (data: z.infer<typeof AddCustomerSchema>) => {
+  const handleSubmit = async (data: z.infer<typeof AddCustomerSchema>) => {
     setIsLoading(true);
     try {
-      await createCustomer(data);
+      if (props.formType === 'edit') {
+        await updateCustomer(props.customerId, data);
+      } else {
+        await createCustomer(data);
+      }
 
       toast({
         title: 'Success',
-        description: 'Customer added to the system',
+        description: `Customer successfully ${
+          props.formType === 'edit' ? 'updated' : 'added to the system'
+        }`,
       });
 
       form.reset();
+
+      if (props.formType === 'edit') props.handleRefresh();
     } catch (error) {
       if (error instanceof AxiosError) {
         if (error.response?.status === 409) {
           toast({
-            title: 'Error - Cannot Create Customer!',
+            title: 'Error - Cannot Update Customer!',
             description: 'Customer already exists!',
             variant: 'destructive',
           });
@@ -69,7 +91,7 @@ const AddCustomerForm = () => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleAdd)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <div className="space-y-4">
           <FormField
             control={form.control}
@@ -78,7 +100,12 @@ const AddCustomerForm = () => {
               <FormItem>
                 <FormLabel>Customer Name</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Amazon" />
+                  <Input
+                    {...field}
+                    placeholder={
+                      props.formType === 'add' ? 'Amazon' : undefined
+                    }
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -94,7 +121,11 @@ const AddCustomerForm = () => {
                   <Input
                     {...field}
                     type="text"
-                    placeholder="Customer details (optional)"
+                    placeholder={
+                      props.formType === 'add' || !props.customerDetails
+                        ? 'Customer details (optional)'
+                        : undefined
+                    }
                   />
                 </FormControl>
                 <FormMessage />
@@ -103,14 +134,18 @@ const AddCustomerForm = () => {
           />
         </div>
         {isLoading ? (
-          <ButtonLoading message="Creating new customer..." />
+          <ButtonLoading
+            message={`${
+              props.formType === 'add' ? 'Creating new' : 'Updating'
+            } customer...`}
+          />
         ) : (
           <Button type="submit" className="w-full">
-            Add a customer
+            {props.formType === 'add' ? 'Add ' : 'Update '}Customer
           </Button>
         )}
       </form>
     </Form>
   );
 };
-export default AddCustomerForm;
+export default CustomerForm;

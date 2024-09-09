@@ -18,7 +18,9 @@ const AddCustomerCard = ({ children }: AddCustomerCardProps) => {
       <Card className="xl:w-1/4 md:w-1/2 shadow-md">
         <CardHeader>
           <CardTitle>Add Customer</CardTitle>
-          <CardDescription>Add a new customer to the portal</CardDescription>
+          <CardDescription>
+            Note: Projects must be assigned to customers after customer creation
+          </CardDescription>
         </CardHeader>
         <CardContent className="">{children}</CardContent>
       </Card>

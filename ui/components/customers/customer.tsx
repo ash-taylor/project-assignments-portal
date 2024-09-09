@@ -24,6 +24,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '../ui/dialog';
+import CustomerForm from './customer-form';
 
 interface CustomerProps {
   customer: CustomerResponse;
@@ -66,8 +67,17 @@ const Customer = ({ customer, handleRefresh }: CustomerProps) => {
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>Edit Customer</DialogTitle>
-                  <DialogDescription>Edit {customer.name}</DialogDescription>
+                  <DialogDescription>
+                    Make changes to the customer here
+                  </DialogDescription>
                 </DialogHeader>
+                <CustomerForm
+                  formType="edit"
+                  customerId={customer.id}
+                  customerName={customer.name}
+                  customerDetails={customer.details}
+                  handleRefresh={handleRefresh}
+                />
               </DialogContent>
             </Dialog>
             <AlertDialog>

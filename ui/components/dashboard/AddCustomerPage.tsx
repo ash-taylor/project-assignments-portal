@@ -1,12 +1,12 @@
 'use client';
 
 import AddCustomerCard from '../cards/AddCustomer';
-import AddCustomerForm from '../customers/add-customer-form';
+import CustomerForm from '../customers/customer-form';
 
 const AddCustomerPage = () => {
   return (
     <AddCustomerCard>
-      <AddCustomerForm />
+      <CustomerForm formType="add" />
     </AddCustomerCard>
   );
 };
