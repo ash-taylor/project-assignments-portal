@@ -28,7 +28,7 @@ import {
   CardTitle,
 } from '../ui/card';
 import { LoadingSpinner } from '../ui/loading-spinner';
-import CustomXAxisTickWrapper from './TickWrapper';
+import CustomXAxisTickWrapper from '../dashboard/utils/TickWrapper';
 
 const ProjectsChart = () => {
   const [chartData, setChartData] =

@@ -2,13 +2,13 @@
 
 import { useState } from 'react';
 
-import DashboardHome from './DashboardHome';
-import AddCustomerPage from './AddCustomerPage';
-
+import AddCustomerPage from './pages/AddCustomerPage';
 import Header from './header/Header';
 import Sidebar from './sidebar/Sidebar';
-import ViewCustomersPage from './ViewCustomersPage';
-import ViewProjectsPage from './ViewProjectsPage';
+import DashboardHome from './pages/DashboardHome';
+import ViewCustomersPage from './pages/ViewCustomersPage';
+import ViewProjectsPage from './pages/ViewProjectsPage';
+import AddProjectPage from './pages/AddProjectPage';
 
 const Dashboard = () => {
   const [currentPage, setCurrentPage] = useState<string>('/dashboard');
@@ -21,6 +21,8 @@ const Dashboard = () => {
         return <AddCustomerPage />;
       case '/view-customers':
         return <ViewCustomersPage />;
+      case '/add-project':
+        return <AddProjectPage />;
       case '/view-projects':
         return <ViewProjectsPage />;
       default:

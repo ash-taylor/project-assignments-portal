@@ -2,6 +2,9 @@ import { CustomerResponse } from './Customer';
 
 export enum ProjectStatus {
   PENDING = 'PENDING',
+  DESIGN = 'DESIGN',
+  BUILD = 'BUILD',
+  COMPLETE = 'COMPLETE',
 }
 
 export interface ProjectResponse {
