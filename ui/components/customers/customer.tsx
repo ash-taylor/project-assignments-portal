@@ -1,6 +1,6 @@
 import { CustomerResponse } from '@/models/Customer';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { CircleXIcon } from 'lucide-react';
+import { CircleXIcon, PencilIcon } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,6 +16,14 @@ import { deleteCustomer } from '@/lib/api';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { AxiosError } from 'axios';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '../ui/dialog';
 
 interface CustomerProps {
   customer: CustomerResponse;
@@ -50,26 +58,39 @@ const Customer = ({ customer, handleRefresh }: CustomerProps) => {
       <CardHeader>
         <div className="flex justify-between items-center">
           <CardTitle>{customer.name}</CardTitle>
-          <AlertDialog>
-            <AlertDialogTrigger>
-              <CircleXIcon />
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete{' '}
-                  {customer.name} and any associated projects.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDelete}>
-                  Continue
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <div className="flex gap-2">
+            <Dialog>
+              <DialogTrigger>
+                <PencilIcon />
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Edit Customer</DialogTitle>
+                  <DialogDescription>Edit {customer.name}</DialogDescription>
+                </DialogHeader>
+              </DialogContent>
+            </Dialog>
+            <AlertDialog>
+              <AlertDialogTrigger>
+                <CircleXIcon />
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete{' '}
+                    {customer.name} and any associated projects.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDelete}>
+                    Continue
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </div>
       </CardHeader>
 

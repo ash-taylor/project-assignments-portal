@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { CustomerResponse } from '@/models/Customer';
 import { getCustomers } from '@/lib/api';
@@ -16,7 +16,7 @@ const ViewCustomersCard = () => {
   const [isReady, setIsReady] = useState<boolean>(false);
   const { toast } = useToast();
 
-  const fetchCustomers = async () => {
+  const fetchCustomers = useCallback(async () => {
     try {
       const response = await getCustomers();
 
@@ -32,7 +32,7 @@ const ViewCustomersCard = () => {
         });
       }
     }
-  };
+  }, [toast]);
 
   const handleRefresh = () => {
     setCustomers(undefined);
@@ -42,7 +42,7 @@ const ViewCustomersCard = () => {
 
   useEffect(() => {
     fetchCustomers();
-  }, []);
+  }, [fetchCustomers]);
 
   useEffect(() => {
     if (customers) setIsReady(true);

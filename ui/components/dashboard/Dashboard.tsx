@@ -8,6 +8,7 @@ import AddCustomerPage from './AddCustomerPage';
 import Header from './header/Header';
 import Sidebar from './sidebar/Sidebar';
 import ViewCustomersPage from './ViewCustomersPage';
+import ViewProjectsPage from './ViewProjectsPage';
 
 const Dashboard = () => {
   const [currentPage, setCurrentPage] = useState<string>('/dashboard');
@@ -20,6 +21,8 @@ const Dashboard = () => {
         return <AddCustomerPage />;
       case '/view-customers':
         return <ViewCustomersPage />;
+      case '/view-projects':
+        return <ViewProjectsPage />;
       default:
         return <DashboardHome />;
     }
