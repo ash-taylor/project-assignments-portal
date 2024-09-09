@@ -6,10 +6,8 @@ import Dashboard from '@/components/dashboard/Dashboard';
 const DashboardLayout = () => {
   return (
     <ProtectedRoute>
-      <main className="min-h-screen max-h-screen min-w-full max-w-full">
-        <div className="flex items-start justify-between">
-          <Dashboard />
-        </div>
+      <main className="flex min-h-screen w-screen overflow-hidden">
+        <Dashboard />
       </main>
     </ProtectedRoute>
   );

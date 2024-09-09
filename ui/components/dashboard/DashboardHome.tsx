@@ -3,11 +3,7 @@
 import ProjectsChart from '../cards/ProjectsChart';
 
 const DashboardHome = () => {
-  return (
-    <div>
-      <ProjectsChart />
-    </div>
-  );
+  return <ProjectsChart />;
 };
 
 export default DashboardHome;

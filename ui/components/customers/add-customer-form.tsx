@@ -19,6 +19,7 @@ import { Input } from '../ui/input';
 import { Button, ButtonLoading } from '../ui/button';
 import { createCustomer } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
+import { AxiosError } from 'axios';
 
 const AddCustomerForm = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -36,12 +37,30 @@ const AddCustomerForm = () => {
     setIsLoading(true);
     try {
       await createCustomer(data);
-      form.reset();
+
       toast({
         title: 'Success',
         description: 'Customer added to the system',
       });
+
+      form.reset();
     } catch (error) {
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 409) {
+          toast({
+            title: 'Error - Cannot Create Customer!',
+            description: 'Customer already exists!',
+            variant: 'destructive',
+          });
+        } else {
+          toast({
+            title: 'Error',
+            description: 'Something went wrong!',
+            variant: 'destructive',
+          });
+        }
+      }
+      form.reset();
       console.error(error);
     }
 
