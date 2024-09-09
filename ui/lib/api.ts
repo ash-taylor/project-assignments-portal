@@ -34,6 +34,14 @@ export const createCustomer = async (customer: CustomerCreate) =>
     headers: { 'Content-Type': 'application/json' },
   });
 
+export const updateCustomer = async (
+  customerId: string,
+  customer: CustomerCreate
+) =>
+  await axios.put<CustomerResponse>(`/api/customer/${customerId}`, customer, {
+    headers: { 'Content-Type': 'application/json' },
+  });
+
 export const deleteCustomer = async (customerId: string) =>
   await axios.delete(`api/customer/${customerId}`);
 
