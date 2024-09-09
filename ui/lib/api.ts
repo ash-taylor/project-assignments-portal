@@ -36,3 +36,18 @@ export const createCustomer = async (customer: CustomerCreate) =>
 
 export const deleteCustomer = async (customerId: string) =>
   await axios.delete(`api/customer/${customerId}`);
+
+export const deleteProject = async (projectId: string) =>
+  await axios.delete(`api/project/${projectId}`);
+
+export const getProjects = async (users?: boolean) => {
+  const queryParams = '?users=true';
+  return await axios.get<[ProjectWithUserResponse]>(
+    `api/projects${users ?? queryParams}`,
+    {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  );
+};
