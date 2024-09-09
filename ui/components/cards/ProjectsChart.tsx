@@ -1,7 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+} from 'recharts';
 
 import {
   ChartConfig,
@@ -21,6 +28,7 @@ import {
   CardTitle,
 } from '../ui/card';
 import { LoadingSpinner } from '../ui/loading-spinner';
+import CustomXAxisTickWrapper from './TickWrapper';
 
 const ProjectsChart = () => {
   const [chartData, setChartData] =
@@ -81,36 +89,46 @@ const ProjectsChart = () => {
   }, [chartConfig, chartData, isReady, setIsReady]);
 
   return (
-    <Card className="w-full h-full">
-      <CardHeader>
+    <Card className="w-full h-full flex flex-col">
+      <CardHeader className="flex-shrink-0">
         <CardTitle>Project Assignments</CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
-      <CardContent className="grid gap-4 h-[700px]">
+      <CardContent className="flex-grow overflow-auto">
         {isReady ? (
-          <ChartContainer config={chartConfig} className="h-[650px]">
-            <BarChart accessibilityLayer data={chartData}>
-              <CartesianGrid vertical={false} />
-              <XAxis
-                dataKey="name"
-                tickLine={false}
-                tickMargin={10}
-                axisLine={false}
-                tickFormatter={(value) => value.slice(0, 5)}
-              />
-              <ChartTooltip
-                cursor={false}
-                content={<ChartTooltipContent hideLabel />}
-              />
-              <Bar
-                dataKey="engineers"
-                fill="var(--color-engineers)"
-                radius={8}
-              />
-            </BarChart>
+          <ChartContainer
+            config={chartConfig}
+            className="h-full w-full min-w-[600px]"
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={chartData}
+                margin={{ top: 20, right: 30, left: 20, bottom: 70 }}
+              >
+                <CartesianGrid vertical={false} />
+                <XAxis
+                  dataKey="name"
+                  tickLine={false}
+                  tickMargin={10}
+                  axisLine={false}
+                  tick={CustomXAxisTickWrapper}
+                  interval={0}
+                />
+                <YAxis />
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent hideLabel />}
+                />
+                <Bar
+                  dataKey="engineers"
+                  fill="var(--color-engineers)"
+                  radius={8}
+                />
+              </BarChart>
+            </ResponsiveContainer>
           </ChartContainer>
         ) : (
-          <div className="flex flex-col items-center justify-center">
+          <div className="flex items-center justify-center h-full w-full">
             <LoadingSpinner message="Loading active project assignments overview..." />
           </div>
         )}

@@ -7,6 +7,7 @@ import AddCustomerPage from './AddCustomerPage';
 
 import Header from './header/Header';
 import Sidebar from './sidebar/Sidebar';
+import ViewCustomersPage from './ViewCustomersPage';
 
 const Dashboard = () => {
   const [currentPage, setCurrentPage] = useState<string>('/dashboard');
@@ -17,6 +18,8 @@ const Dashboard = () => {
         return <DashboardHome />;
       case '/add-customer':
         return <AddCustomerPage />;
+      case '/view-customers':
+        return <ViewCustomersPage />;
       default:
         return <DashboardHome />;
     }
@@ -24,12 +27,14 @@ const Dashboard = () => {
 
   return (
     <>
-      <div className="min-w-[300px] border-r min-h-screen">
+      <div className="fixed w-[300px] h-screen overflow-y-auto border-r bg-white z-50">
         <Sidebar onNavigate={setCurrentPage} />
       </div>
-      <div className="grid w-full h-full">
+      <div className="fixed ml-[300px] flex flex-col w-[calc(100%-300px)]">
         <Header />
-        <div className="p-8">{renderPage()}</div>
+        <div className="h-[calc(100vh-100px)] p-8 overflow-y-auto">
+          {renderPage()}
+        </div>
       </div>
     </>
   );

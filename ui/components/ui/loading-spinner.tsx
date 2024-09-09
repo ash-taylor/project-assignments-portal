@@ -15,14 +15,14 @@ const LoadingSpinner = React.forwardRef<HTMLDivElement, LoadingSpinnerProps>(
   (props, ref) => {
     const { className, ...rest } = props;
     return (
-      <>
+      <div className="flex flex-col items-center">
         <div ref={ref} className={cn(spinnerVariants, className)} {...rest} />
         {props.message && (
           <p className="text-base text-muted-foreground pt-5">
             {props.message}
           </p>
         )}
-      </>
+      </div>
     );
   }
 );

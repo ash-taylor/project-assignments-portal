@@ -25,36 +25,29 @@ export default function Header() {
   };
 
   return (
-    <div className="grid grid-cols-2 gap-4 pt-7 pb-7 pl-8 pr-8 border-b">
-      <div className="flex items-center">
-        <h2 className="text-3xl font-semibold tracking-tight transition-colors text-nowrap">
-          Project Assignments Portal - Dashboard - Welcome!
-        </h2>
-      </div>
+    <div className="sticky top-0 z-40 flex justify-between items-center pt-7 pb-7 pl-8 pr-8 border-b bg-white">
+      <h2 className="text-3xl font-semibold tracking-tight transition-colors text-nowrap">
+        Project Assignments Portal - Dashboard - Welcome!
+      </h2>
 
-      <div className="flex items-center justify-end">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon">
-              <UserRoundIcon className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer">
-              Profile
-            </DropdownMenuItem>
-            <DropdownMenuItem>Projects</DropdownMenuItem>
-            <DropdownMenuItem
-              className="cursor-pointer"
-              onSelect={handleLogout}
-            >
-              {loggingOut ? 'Logging out user...' : 'Logout'}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" size="icon">
+            <UserRoundIcon className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>My Account</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem className="cursor-pointer">
+            Profile
+          </DropdownMenuItem>
+          <DropdownMenuItem>Projects</DropdownMenuItem>
+          <DropdownMenuItem className="cursor-pointer" onSelect={handleLogout}>
+            {loggingOut ? 'Logging out user...' : 'Logout'}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }

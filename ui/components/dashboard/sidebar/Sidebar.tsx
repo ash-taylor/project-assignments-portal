@@ -87,7 +87,7 @@ const Sidebar = ({ onNavigate }: SidebarProps) => {
     },
   ];
   return (
-    <div className="fixed flex flex-col gap-4 min-w-[300px] p-4 min-h-screen">
+    <div className="flex flex-col gap-4 p-4 min-h-screen bg-white">
       <UserItem />
       <div className="grow">
         <Command style={{ overflow: 'visible' }}>

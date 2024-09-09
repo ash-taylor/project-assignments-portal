@@ -26,7 +26,13 @@ export const logOutUser = async () => await axios.post('/api/logout');
 export const getProjectsWithUsers = async () =>
   await axios.get<[ProjectWithUserResponse]>('api/projects?users=true');
 
+export const getCustomers = async () =>
+  await axios.get<[CustomerResponse]>('api/customers');
+
 export const createCustomer = async (customer: CustomerCreate) =>
   await axios.post<CustomerResponse>('/api/customer', customer, {
     headers: { 'Content-Type': 'application/json' },
   });
+
+export const deleteCustomer = async (customerId: string) =>
+  await axios.delete(`api/customer/${customerId}`);
