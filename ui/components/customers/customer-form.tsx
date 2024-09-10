@@ -1,11 +1,16 @@
 'use client';
 
-import { AddCustomerSchema } from '@/schema';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { AxiosError } from 'axios';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
+import { useToast } from '@/hooks/use-toast';
+import { createCustomer, updateCustomer } from '@/lib/api';
+import { AddCustomerSchema } from '@/schema';
+import { Button, ButtonLoading } from '../ui/button';
 import {
   Form,
   FormControl,
@@ -15,11 +20,6 @@ import {
   FormMessage,
 } from '../ui/form';
 import { Input } from '../ui/input';
-
-import { Button, ButtonLoading } from '../ui/button';
-import { createCustomer, updateCustomer } from '@/lib/api';
-import { useToast } from '@/hooks/use-toast';
-import { AxiosError } from 'axios';
 
 interface AddCustomerFormProps {
   formType: 'add';
@@ -37,7 +37,9 @@ type CustomerFormProps = AddCustomerFormProps | EditCustomerFormProps;
 
 const CustomerForm = (props: CustomerFormProps) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const { toast } = useToast();
+  const router = useRouter();
 
   const form = useForm({
     resolver: zodResolver(AddCustomerSchema),
@@ -63,12 +65,19 @@ const CustomerForm = (props: CustomerFormProps) => {
         }`,
       });
 
-      form.reset();
-
       if (props.formType === 'edit') props.handleRefresh();
     } catch (error) {
       if (error instanceof AxiosError) {
-        if (error.response?.status === 409) {
+        if (error.response?.status === 401) {
+          toast({
+            title: 'Session Expired',
+            description: 'Your credentials have expired, you must log in again',
+            variant: 'destructive',
+          });
+          setTimeout(() => {
+            return router.push('/auth/login');
+          }, 3000);
+        } else if (error.response?.status === 409) {
           toast({
             title: 'Error - Cannot Update Customer!',
             description: 'Customer already exists!',
@@ -82,11 +91,10 @@ const CustomerForm = (props: CustomerFormProps) => {
           });
         }
       }
+    } finally {
       form.reset();
-      console.error(error);
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   return (

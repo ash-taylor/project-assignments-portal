@@ -1,12 +1,28 @@
 'use client';
 
-import { AddProjectSchema } from '@/schema';
+import { AxiosError } from 'axios';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
 import { CaretSortIcon, CheckIcon } from '@radix-ui/react-icons';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { useToast } from '@/hooks/use-toast';
+import { createProject, getCustomers, updateCustomer } from '@/lib/api';
+import { cn } from '@/lib/utils';
+import { CustomerResponse } from '@/models/Customer';
+import { ProjectStatus } from '@/models/Project';
+import { AddProjectSchema } from '@/schema';
+import { Button, ButtonLoading } from '../ui/button';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '../ui/command';
 import {
   Form,
   FormControl,
@@ -16,12 +32,8 @@ import {
   FormMessage,
 } from '../ui/form';
 import { Input } from '../ui/input';
-
-import { Button, ButtonLoading } from '../ui/button';
-import { createProject, getCustomers, updateCustomer } from '@/lib/api';
-import { useToast } from '@/hooks/use-toast';
-import { AxiosError } from 'axios';
-import { ProjectStatus } from '@/models/Project';
+import { LoadingSpinner } from '../ui/loading-spinner';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import {
   Select,
   SelectContent,
@@ -29,18 +41,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
-import { CustomerResponse } from '@/models/Customer';
-import { LoadingSpinner } from '../ui/loading-spinner';
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
-import { cn } from '@/lib/utils';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '../ui/command';
 
 interface AddProjectFormProps {
   formType: 'add';
@@ -64,7 +64,9 @@ const ProjectForm = (props: ProjectFormProps) => {
   );
   const [isReady, setIsReady] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const { toast } = useToast();
+  const router = useRouter();
 
   const form = useForm({
     resolver: zodResolver(AddProjectSchema),
@@ -95,12 +97,19 @@ const ProjectForm = (props: ProjectFormProps) => {
         }`,
       });
 
-      form.reset();
-
       if (props.formType === 'edit') props.handleRefresh();
     } catch (error) {
       if (error instanceof AxiosError) {
-        if (error.response?.status === 409) {
+        if (error.response?.status === 401) {
+          toast({
+            title: 'Session Expired',
+            description: 'Your credentials have expired, you must log in again',
+            variant: 'destructive',
+          });
+          setTimeout(() => {
+            return router.push('/auth/login');
+          }, 3000);
+        } else if (error.response?.status === 409) {
           toast({
             title: 'Error - Cannot Update Project!',
             description: 'Project already exists!',
@@ -114,11 +123,10 @@ const ProjectForm = (props: ProjectFormProps) => {
           });
         }
       }
+    } finally {
       form.reset();
-      console.error(error);
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   const fetchCustomers = useCallback(async () => {
@@ -130,14 +138,25 @@ const ProjectForm = (props: ProjectFormProps) => {
       setIsReady(true);
     } catch (error) {
       if (error instanceof AxiosError) {
-        toast({
-          variant: 'destructive',
-          title: 'Error Fetching Customers. Try again later...',
-          description: error.message,
-        });
+        if (error.response?.status === 401) {
+          toast({
+            title: 'Session Expired',
+            description: 'Your credentials have expired, you must log in again',
+            variant: 'destructive',
+          });
+          setTimeout(() => {
+            router.push('/auth/login');
+          }, 3000);
+        } else {
+          toast({
+            variant: 'destructive',
+            title: 'Error Fetching Customers. Try again later...',
+            description: error.message,
+          });
+        }
       }
     }
-  }, [toast]);
+  }, [router, toast]);
 
   useEffect(() => {
     fetchCustomers();
