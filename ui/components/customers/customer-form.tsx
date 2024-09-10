@@ -21,11 +21,11 @@ import { createCustomer, updateCustomer } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { AxiosError } from 'axios';
 
-interface AddFormProps {
+interface AddCustomerFormProps {
   formType: 'add';
 }
 
-interface EditFormProps {
+interface EditCustomerFormProps {
   formType: 'edit';
   customerId: string;
   customerName: string;
@@ -33,7 +33,7 @@ interface EditFormProps {
   handleRefresh: () => void;
 }
 
-type CustomerFormProps = AddFormProps | EditFormProps;
+type CustomerFormProps = AddCustomerFormProps | EditCustomerFormProps;
 
 const CustomerForm = (props: CustomerFormProps) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);

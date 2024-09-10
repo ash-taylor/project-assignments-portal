@@ -1,3 +1,4 @@
+import { ProjectStatus } from '@/models/Project';
 import { UserRole } from '@/models/User';
 import { z } from 'zod';
 
@@ -34,11 +35,29 @@ export const LoginSchema = z.object({
 export const AddCustomerSchema = z.object({
   name: z
     .string()
-    .min(3, { message: 'Customer name must be at least 3 characters' }),
+    .min(3, { message: 'Customer name must be at least 3 characters' })
+    .max(20, { message: 'Customer name must be no more than 20 characters' }),
   details: z
     .string()
     .max(100, {
       message: 'Customer details must be a maximum of 100 characters',
+    })
+    .optional(),
+});
+
+export const AddProjectSchema = z.object({
+  name: z
+    .string()
+    .min(3, { message: 'Project name must be at least 3 characters' })
+    .max(20, { message: 'Project name must be no more than 20 characters' }),
+  status: z.nativeEnum(ProjectStatus, {
+    message: 'Status must be "PENDING", "DESIGN", "BUILD" or "COMPLETE"',
+  }),
+  customer_id: z.string().uuid({ message: 'Please select a customer' }),
+  details: z
+    .string()
+    .max(100, {
+      message: 'Project details must be a maximum of 100 characters',
     })
     .optional(),
 });

@@ -1,6 +1,6 @@
 'use client';
 
-import ProjectsChart from '../cards/ProjectsChart';
+import ProjectsChart from '@/components/cards/ProjectsChart';
 
 const DashboardHome = () => {
   return <ProjectsChart />;

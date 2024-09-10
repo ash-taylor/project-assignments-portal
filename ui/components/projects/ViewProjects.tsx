@@ -5,11 +5,10 @@ import { getProjects } from '@/lib/api';
 import { ProjectWithUserResponse } from '@/models/Relations';
 import { AxiosError } from 'axios';
 import { useCallback, useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { LoadingSpinner } from '../ui/loading-spinner';
-import Project from '../projects/project';
+import Project from './project';
 
-const ViewProjectsCard = () => {
+const ViewProjects = () => {
   const [projects, setProjects] = useState<
     ProjectWithUserResponse[] | undefined
   >(undefined);
@@ -48,26 +47,17 @@ const ViewProjectsCard = () => {
   }, [fetchProjects]);
 
   return (
-    <Card className="w-full h-full flex flex-col">
-      <CardHeader className="flex-shrink-0">
-        <CardTitle>View Projects</CardTitle>
-      </CardHeader>
-      <CardContent className="flex-grow overflow-auto">
-        {isReady ? (
-          projects?.map((project, idx) => (
-            <Project
-              key={idx}
-              project={project}
-              handleRefresh={handleRefresh}
-            />
-          ))
-        ) : (
-          <div className="flex items-center justify-center h-full w-full">
-            <LoadingSpinner message="Loading projects..." />
-          </div>
-        )}
-      </CardContent>
-    </Card>
+    <>
+      {isReady ? (
+        projects?.map((project, idx) => (
+          <Project key={idx} project={project} handleRefresh={handleRefresh} />
+        ))
+      ) : (
+        <div className="flex items-center justify-center h-full w-full">
+          <LoadingSpinner message="Loading projects..." />
+        </div>
+      )}
+    </>
   );
 };
-export default ViewProjectsCard;
+export default ViewProjects;

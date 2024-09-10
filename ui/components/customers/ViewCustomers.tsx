@@ -1,15 +1,14 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { CustomerResponse } from '@/models/Customer';
 import { getCustomers } from '@/lib/api';
-import Customer from '../customers/customer';
+import Customer from './customer';
 import { LoadingSpinner } from '../ui/loading-spinner';
 import { AxiosError } from 'axios';
 import { useToast } from '@/hooks/use-toast';
 
-const ViewCustomersCard = () => {
+const ViewCustomers = () => {
   const [customers, setCustomers] = useState<CustomerResponse[] | undefined>(
     undefined
   );
@@ -49,26 +48,21 @@ const ViewCustomersCard = () => {
   }, [customers]);
 
   return (
-    <Card className="w-full h-full flex flex-col">
-      <CardHeader className="flex-shrink-0">
-        <CardTitle>View Customers</CardTitle>
-      </CardHeader>
-      <CardContent className="flex-grow overflow-auto">
-        {isReady ? (
-          customers?.map((customer, idx) => (
-            <Customer
-              key={idx}
-              customer={customer}
-              handleRefresh={handleRefresh}
-            />
-          ))
-        ) : (
-          <div className="flex items-center justify-center h-full w-full">
-            <LoadingSpinner message="Loading customers..." />
-          </div>
-        )}
-      </CardContent>
-    </Card>
+    <>
+      {isReady ? (
+        customers?.map((customer, idx) => (
+          <Customer
+            key={idx}
+            customer={customer}
+            handleRefresh={handleRefresh}
+          />
+        ))
+      ) : (
+        <div className="flex items-center justify-center h-full w-full">
+          <LoadingSpinner message="Loading customers..." />
+        </div>
+      )}
+    </>
   );
 };
-export default ViewCustomersCard;
+export default ViewCustomers;
