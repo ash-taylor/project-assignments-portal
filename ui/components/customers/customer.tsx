@@ -1,8 +1,8 @@
 import { AxiosError } from 'axios';
 import { CircleXIcon, PencilIcon } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 
+import AuthContext from '@/context/AuthContext';
 import CustomerForm from './customer-form';
 import { useToast } from '@/hooks/use-toast';
 import { deleteCustomer } from '@/lib/api';
@@ -18,6 +18,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '../ui/alert-dialog';
+import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import {
   Dialog,
@@ -37,7 +38,7 @@ const Customer = ({ customer, handleRefresh }: CustomerProps) => {
   const [isReady, setIsReady] = useState<boolean>(true);
 
   const { toast } = useToast();
-  const router = useRouter();
+  const { logout } = useContext(AuthContext);
 
   const handleDelete = async () => {
     try {
@@ -57,8 +58,8 @@ const Customer = ({ customer, handleRefresh }: CustomerProps) => {
             variant: 'destructive',
           });
           setTimeout(() => {
-            return router.push('/auth/login');
-          }, 3000);
+            return logout();
+          }, 2000);
         } else {
           toast({
             variant: 'destructive',
@@ -77,7 +78,9 @@ const Customer = ({ customer, handleRefresh }: CustomerProps) => {
           <div className="flex gap-2">
             <Dialog>
               <DialogTrigger>
-                <PencilIcon />
+                <Button variant="outline" size="icon">
+                  <PencilIcon />
+                </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
@@ -97,7 +100,9 @@ const Customer = ({ customer, handleRefresh }: CustomerProps) => {
             </Dialog>
             <AlertDialog>
               <AlertDialogTrigger>
-                <CircleXIcon />
+                <Button variant="destructive" size="icon">
+                  <CircleXIcon />
+                </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>

@@ -72,11 +72,11 @@ class Repository(IRepository[T]):
         except IntegrityError as e:
             await self._session.rollback()
             logger.error("Integrity Error %s", e)
-            ExceptionHandler.raise_repository_exception()
+            ExceptionHandler.raise_already_exists_exception()
         except AttributeError as e:
             await self._session.rollback()
             logger.error("Integrity Error %s", e)
-            ExceptionHandler.raise_repository_exception()
+            ExceptionHandler.raise_internal_server_error()
 
     async def list_all(self, load_relations: List[str] | None = None) -> List[T]:
         results = list(

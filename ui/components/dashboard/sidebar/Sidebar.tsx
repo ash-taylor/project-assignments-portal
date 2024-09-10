@@ -6,12 +6,10 @@ import {
   GroupIcon,
   HandshakeIcon,
   LayoutDashboardIcon,
-  UserRoundPlusIcon,
   UsersRoundIcon,
 } from 'lucide-react';
-import UserItem from './user/UserItem';
-
 import { Fragment } from 'react';
+
 import {
   Command,
   CommandGroup,
@@ -19,6 +17,7 @@ import {
   CommandList,
   CommandSeparator,
 } from '@/components/ui/command';
+import UserItem from './user/UserItem';
 
 interface SidebarProps {
   onNavigate: (link: string) => void;
