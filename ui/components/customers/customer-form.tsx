@@ -80,7 +80,9 @@ const CustomerForm = (props: CustomerFormProps) => {
         } else if (error.response?.status === 409) {
           toast({
             title: 'Error - Cannot Update Customer!',
-            description: 'Customer already exists!',
+            description: `Customer ${
+              props.formType === 'edit' ? 'name' : ''
+            } already exists!`,
             variant: 'destructive',
           });
         } else {

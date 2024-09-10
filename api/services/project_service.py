@@ -24,6 +24,9 @@ class ProjectService(IProjectService):
         return await self._project_repository.create(db_project)
 
     async def update_project(self, project_id: str, project: ProjectUpdate) -> Project:
+        if await self.find_project(name=project.name):
+            ExceptionHandler.raise_http_exception(409, "Project name already exists")
+
         db_project = await self.find_project(project_id=project_id)
 
         if db_project is None:

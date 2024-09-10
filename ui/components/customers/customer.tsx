@@ -1,6 +1,12 @@
-import { CustomerResponse } from '@/models/Customer';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { AxiosError } from 'axios';
 import { CircleXIcon, PencilIcon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+
+import CustomerForm from './customer-form';
+import { useToast } from '@/hooks/use-toast';
+import { deleteCustomer } from '@/lib/api';
+import { CustomerResponse } from '@/models/Customer';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,10 +18,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '../ui/alert-dialog';
-import { deleteCustomer } from '@/lib/api';
-import { useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
-import { AxiosError } from 'axios';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import {
   Dialog,
   DialogContent,
@@ -24,7 +27,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '../ui/dialog';
-import CustomerForm from './customer-form';
 
 interface CustomerProps {
   customer: CustomerResponse;
@@ -33,7 +35,9 @@ interface CustomerProps {
 
 const Customer = ({ customer, handleRefresh }: CustomerProps) => {
   const [isReady, setIsReady] = useState<boolean>(true);
+
   const { toast } = useToast();
+  const router = useRouter();
 
   const handleDelete = async () => {
     try {
@@ -46,11 +50,22 @@ const Customer = ({ customer, handleRefresh }: CustomerProps) => {
       handleRefresh();
     } catch (error) {
       if (error instanceof AxiosError) {
-        toast({
-          variant: 'destructive',
-          title: 'Error Deleting Customer',
-          description: error.message,
-        });
+        if (error.response?.status === 401) {
+          toast({
+            title: 'Session Expired',
+            description: 'Your credentials have expired, you must log in again',
+            variant: 'destructive',
+          });
+          setTimeout(() => {
+            return router.push('/auth/login');
+          }, 3000);
+        } else {
+          toast({
+            variant: 'destructive',
+            title: 'Error Deleting Customer',
+            description: error.message,
+          });
+        }
       }
     }
   };
