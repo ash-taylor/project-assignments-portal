@@ -48,6 +48,14 @@ export const updateCustomer = async (
     headers: { 'Content-Type': 'application/json' },
   });
 
+export const updateProject = async (
+  projectId: string,
+  project: ProjectCreate
+) =>
+  await axios.put<ProjectResponse>(`/api/project/${projectId}`, project, {
+    headers: { 'Content-Type': 'application/json' },
+  });
+
 export const deleteCustomer = async (customerId: string) =>
   await axios.delete(`api/customer/${customerId}`);
 

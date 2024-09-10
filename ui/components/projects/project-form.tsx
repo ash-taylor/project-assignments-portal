@@ -9,7 +9,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { useToast } from '@/hooks/use-toast';
-import { createProject, getCustomers, updateCustomer } from '@/lib/api';
+import { createProject, getCustomers, updateProject } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { CustomerResponse } from '@/models/Customer';
 import { ProjectStatus } from '@/models/Project';
@@ -85,7 +85,7 @@ const ProjectForm = (props: ProjectFormProps) => {
     setIsLoading(true);
     try {
       if (props.formType === 'edit') {
-        await updateCustomer(props.projectId, data);
+        await updateProject(props.projectId, data);
       } else {
         await createProject(data);
       }
@@ -112,7 +112,9 @@ const ProjectForm = (props: ProjectFormProps) => {
         } else if (error.response?.status === 409) {
           toast({
             title: 'Error - Cannot Update Project!',
-            description: 'Project already exists!',
+            description: `Project ${
+              props.formType === 'edit' ? 'name' : ''
+            } already exists!`,
             variant: 'destructive',
           });
         } else {
