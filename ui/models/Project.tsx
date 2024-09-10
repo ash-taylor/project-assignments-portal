@@ -7,11 +7,14 @@ export enum ProjectStatus {
   COMPLETE = 'COMPLETE',
 }
 
-export interface ProjectResponse {
+export interface ProjectCreate {
   name: string;
   status: ProjectStatus;
-  details: string;
+  details?: string;
   customer_id: string;
+}
+
+export interface ProjectResponse extends ProjectCreate {
   id: string;
   customer: CustomerResponse;
 }

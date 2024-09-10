@@ -74,14 +74,9 @@ const Sidebar = ({ onNavigate }: SidebarProps) => {
       group: 'Users',
       items: [
         {
-          link: '/add-user',
-          icon: <UserRoundPlusIcon />,
-          text: 'Add New User',
-        },
-        {
-          link: '/view-users',
+          link: '/manage-users',
           icon: <UsersRoundIcon />,
-          text: 'View All Users',
+          text: 'Manage Team',
         },
       ],
     },
@@ -112,8 +107,6 @@ const Sidebar = ({ onNavigate }: SidebarProps) => {
           </CommandList>
         </Command>
       </div>
-
-      <div>Log out</div>
     </div>
   );
 };
