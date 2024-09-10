@@ -24,5 +24,9 @@ class ExceptionHandler:
         )
 
     @staticmethod
-    def raise_repository_exception() -> NoReturn:
+    def raise_already_exists_exception() -> NoReturn:
+        ExceptionHandler.raise_http_exception(409, "Resource already exists")
+
+    @staticmethod
+    def raise_internal_server_error() -> NoReturn:
         ExceptionHandler.raise_http_exception(500, "Internal Server Error")

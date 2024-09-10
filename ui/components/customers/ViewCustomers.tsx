@@ -1,14 +1,14 @@
 'use client';
 
 import { AxiosError } from 'axios';
-import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 
 import Customer from './customer';
 import { useToast } from '@/hooks/use-toast';
 import { getCustomers } from '@/lib/api';
 import { CustomerResponse } from '@/models/Customer';
 import { LoadingSpinner } from '../ui/loading-spinner';
+import AuthContext from '@/context/AuthContext';
 
 const ViewCustomers = () => {
   const [customers, setCustomers] = useState<CustomerResponse[] | undefined>(
@@ -17,7 +17,7 @@ const ViewCustomers = () => {
   const [isReady, setIsReady] = useState<boolean>(false);
 
   const { toast } = useToast();
-  const router = useRouter();
+  const { logout } = useContext(AuthContext);
 
   const fetchCustomers = useCallback(async () => {
     try {
@@ -35,7 +35,7 @@ const ViewCustomers = () => {
             variant: 'destructive',
           });
           setTimeout(() => {
-            router.push('/auth/login');
+            return logout();
           }, 3000);
         } else {
           toast({
@@ -46,7 +46,7 @@ const ViewCustomers = () => {
         }
       }
     }
-  }, [router, toast]);
+  }, [logout, toast]);
 
   const handleRefresh = () => {
     setCustomers(undefined);

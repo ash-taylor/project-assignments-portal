@@ -20,9 +20,6 @@ class CustomerService(ICustomerService):
     async def update_customer(
         self, customer_id: str, customer: CustomerUpdate
     ) -> Customer:
-        if await self.find_customer(name=customer.name):
-            ExceptionHandler.raise_http_exception(409, "Customer name already exists")
-
         db_customer = await self.find_customer(customer_id=customer_id)
 
         if db_customer is None:

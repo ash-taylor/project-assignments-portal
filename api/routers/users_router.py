@@ -88,7 +88,7 @@ async def delete_user(
 
 
 @router.patch(
-    "/user/{user_id}/project/{project_id}/",
+    "/user/{user_id}/project/{project_id}",
     tags=["users"],
     response_model=UserWithProjectOut,
 )

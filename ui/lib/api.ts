@@ -1,11 +1,12 @@
+import axios from 'axios';
+
 import { CustomerCreate, CustomerResponse } from '@/models/Customer';
 import { ProjectCreate, ProjectResponse } from '@/models/Project';
 import {
   ProjectWithUserResponse,
   UserWithProjectResponse,
 } from '@/models/Relations';
-import { UserCreate, UserLogin } from '@/models/User';
-import axios from 'axios';
+import { UserCreate, UserLogin, UserResponse } from '@/models/User';
 
 export const whoAmI = async () =>
   await axios.get<UserWithProjectResponse>('api/users/me', {
@@ -25,10 +26,10 @@ export const logInUser = async (user: UserLogin) =>
 export const logOutUser = async () => await axios.post('/api/logout');
 
 export const getProjectsWithUsers = async () =>
-  await axios.get<[ProjectWithUserResponse]>('api/projects?users=true');
+  await axios.get<ProjectWithUserResponse[]>('api/projects?users=true');
 
 export const getCustomers = async () =>
-  await axios.get<[CustomerResponse]>('api/customers');
+  await axios.get<CustomerResponse[]>('api/customers');
 
 export const createProject = async (project: ProjectCreate) =>
   await axios.post<ProjectResponse>('/api/project', project, {
@@ -62,14 +63,42 @@ export const deleteCustomer = async (customerId: string) =>
 export const deleteProject = async (projectId: string) =>
   await axios.delete(`api/project/${projectId}`);
 
+export const getUsers = async (projects?: boolean) => {
+  const queryParams = '?projects=true';
+  const url = projects ? `api/users${queryParams}` : 'api/users';
+  return await axios.get<UserWithProjectResponse[]>(url, {
+    headers: { 'Content-Type': 'application/json' },
+  });
+};
+
 export const getProjects = async (users?: boolean) => {
   const queryParams = '?users=true';
-  return await axios.get<[ProjectWithUserResponse]>(
-    `api/projects${users ?? queryParams}`,
+  const url = users ? `api/projects${queryParams}` : 'api/projects';
+  return await axios.get<ProjectWithUserResponse[]>(url, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+};
+
+export const assignProjectToUser = async (userId: string, projectId: string) =>
+  await axios.patch<UserWithProjectResponse>(
+    `/api/user/${userId}/project/${projectId}`,
+    {},
     {
       headers: {
         'Content-Type': 'application/json',
       },
     }
   );
-};
+
+export const unassignProjectFromUser = async (userId: string) =>
+  await axios.patch<UserResponse>(
+    `/api/user/${userId}/unassign_project`,
+    {},
+    {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  );

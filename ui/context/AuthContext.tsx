@@ -94,11 +94,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const logout = useCallback(async () => {
     try {
       await logOutUser();
-
-      setUser(null);
-      return router.push(loginRoute);
     } catch (error) {
       console.error('Logout failed', error);
+    } finally {
+      setUser(null);
+      return router.push(loginRoute);
     }
   }, [router]);
   useEffect(() => {

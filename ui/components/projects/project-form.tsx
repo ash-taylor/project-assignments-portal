@@ -2,9 +2,8 @@
 
 import { AxiosError } from 'axios';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
 import { CaretSortIcon, CheckIcon } from '@radix-ui/react-icons';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -41,6 +40,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
+import AuthContext from '@/context/AuthContext';
 
 interface AddProjectFormProps {
   formType: 'add';
@@ -66,7 +66,7 @@ const ProjectForm = (props: ProjectFormProps) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const { toast } = useToast();
-  const router = useRouter();
+  const { logout } = useContext(AuthContext);
 
   const form = useForm({
     resolver: zodResolver(AddProjectSchema),
@@ -107,8 +107,8 @@ const ProjectForm = (props: ProjectFormProps) => {
             variant: 'destructive',
           });
           setTimeout(() => {
-            return router.push('/auth/login');
-          }, 3000);
+            return logout();
+          }, 2000);
         } else if (error.response?.status === 409) {
           toast({
             title: 'Error - Cannot Update Project!',
@@ -147,8 +147,8 @@ const ProjectForm = (props: ProjectFormProps) => {
             variant: 'destructive',
           });
           setTimeout(() => {
-            router.push('/auth/login');
-          }, 3000);
+            return logout();
+          }, 2000);
         } else {
           toast({
             variant: 'destructive',
@@ -158,7 +158,7 @@ const ProjectForm = (props: ProjectFormProps) => {
         }
       }
     }
-  }, [router, toast]);
+  }, [logout, toast]);
 
   useEffect(() => {
     fetchCustomers();

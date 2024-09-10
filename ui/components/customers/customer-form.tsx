@@ -1,8 +1,7 @@
 'use client';
 
 import { AxiosError } from 'axios';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -20,6 +19,7 @@ import {
   FormMessage,
 } from '../ui/form';
 import { Input } from '../ui/input';
+import AuthContext from '@/context/AuthContext';
 
 interface AddCustomerFormProps {
   formType: 'add';
@@ -39,7 +39,7 @@ const CustomerForm = (props: CustomerFormProps) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const { toast } = useToast();
-  const router = useRouter();
+  const { logout } = useContext(AuthContext);
 
   const form = useForm({
     resolver: zodResolver(AddCustomerSchema),
@@ -75,8 +75,8 @@ const CustomerForm = (props: CustomerFormProps) => {
             variant: 'destructive',
           });
           setTimeout(() => {
-            return router.push('/auth/login');
-          }, 3000);
+            return logout();
+          }, 2000);
         } else if (error.response?.status === 409) {
           toast({
             title: 'Error - Cannot Update Customer!',

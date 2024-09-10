@@ -1,8 +1,7 @@
 'use client';
 
 import { AxiosError } from 'axios';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import {
   Bar,
   BarChart,
@@ -32,6 +31,7 @@ import {
   ChartTooltipContent,
 } from '../ui/chart';
 import { LoadingSpinner } from '../ui/loading-spinner';
+import AuthContext from '@/context/AuthContext';
 
 const ProjectsChart = () => {
   const [chartData, setChartData] =
@@ -39,7 +39,7 @@ const ProjectsChart = () => {
   const [isReady, setIsReady] = useState<boolean>(false);
 
   const { toast } = useToast();
-  const router = useRouter();
+  const { logout } = useContext(AuthContext);
 
   const description = 'Project engineering effort';
 
@@ -51,7 +51,7 @@ const ProjectsChart = () => {
   } satisfies ChartConfig;
 
   useEffect(() => {
-    const processChartData = (projects: [ProjectWithUserResponse]) => {
+    const processChartData = (projects: ProjectWithUserResponse[]) => {
       const data: {
         project: string;
         engineers: number;
@@ -86,8 +86,8 @@ const ProjectsChart = () => {
               variant: 'destructive',
             });
             setTimeout(() => {
-              router.push('/auth/login');
-            }, 3000);
+              return logout();
+            }, 2000);
           } else {
             toast({
               title: 'Error',
@@ -100,7 +100,7 @@ const ProjectsChart = () => {
     };
 
     fetchProjectsData();
-  }, [router, toast]);
+  }, [logout, toast]);
 
   useEffect(() => {
     if (chartConfig !== undefined && chartData !== undefined) {
