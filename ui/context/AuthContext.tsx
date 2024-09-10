@@ -23,8 +23,11 @@ type AuthContextType = {
   logout: () => void;
   register: (data: z.infer<typeof RegisterSchema>) => Promise<void>;
 };
+
 const loginRoute = '/auth/login';
+
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isReady, setIsReady] = useState<boolean>(false);
   const [user_, setUser] = useState<User | null>(null);
@@ -35,10 +38,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const response = await whoAmI();
 
-      if (response.status !== 200) {
-        setUser(null);
-        return router.push(loginRoute);
-      }
       const fetchedUser = new User(
         response.data.active,
         response.data.id,
@@ -51,14 +50,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         response.data.project_id,
         response.data.project
       );
+
       if (JSON.stringify(user) !== JSON.stringify(fetchedUser))
         setUser(fetchedUser);
+
       return router.push('/dashboard');
     } catch (error) {
+      setUser(null);
       console.error('failed to fetch user', user);
-      return router.push(loginRoute);
     }
   }, [router, user]);
+
   const register = useCallback(
     async (data: z.infer<typeof RegisterSchema>) => {
       try {
@@ -76,6 +78,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     },
     [fetchUser, router]
   );
+
   const login = useCallback(
     async (data: z.infer<typeof LoginSchema>) => {
       try {
@@ -101,6 +104,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return router.push(loginRoute);
     }
   }, [router]);
+
   useEffect(() => {
     axios.defaults.baseURL = window.location.origin;
     const checkAuth = async () => {
@@ -109,6 +113,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
     checkAuth();
   }, [user, fetchUser]);
+
   return (
     <AuthContext.Provider value={{ user, fetchUser, login, logout, register }}>
       {isReady ? (
