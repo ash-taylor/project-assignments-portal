@@ -1,5 +1,7 @@
 'use client';
 
+import { AxiosError } from 'axios';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import {
   Bar,
@@ -10,15 +12,11 @@ import {
   YAxis,
 } from 'recharts';
 
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from '../ui/chart';
+import CustomXAxisTickWrapper from '../dashboard/utils/TickWrapper';
+import { useToast } from '@/hooks/use-toast';
+import { getProjectsWithUsers } from '@/lib/api';
 import { ProjectWithUserResponse } from '@/models/Relations';
 import { UserRole } from '@/models/User';
-import { getProjectsWithUsers } from '@/lib/api';
 import {
   Card,
   CardContent,
@@ -27,13 +25,21 @@ import {
   CardHeader,
   CardTitle,
 } from '../ui/card';
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from '../ui/chart';
 import { LoadingSpinner } from '../ui/loading-spinner';
-import CustomXAxisTickWrapper from '../dashboard/utils/TickWrapper';
 
 const ProjectsChart = () => {
   const [chartData, setChartData] =
     useState<{ project: string; engineers: number }[]>();
   const [isReady, setIsReady] = useState<boolean>(false);
+
+  const { toast } = useToast();
+  const router = useRouter();
 
   const description = 'Project engineering effort';
 
@@ -49,38 +55,52 @@ const ProjectsChart = () => {
       const data: {
         project: string;
         engineers: number;
-
         name: string;
       }[] = [];
 
       projects.forEach((project) => {
-        if (project.users)
-          data.push({
-            project: project.id,
-            name: project.name,
-            engineers: project.users.filter(
-              (user) => user.role === UserRole.ENGINEER
-            ).length,
-          });
+        data.push({
+          project: project.id,
+          name: project.name,
+          engineers: project.users.filter(
+            (user) => user.role === UserRole.ENGINEER
+          ).length,
+        });
       });
 
       setChartData(data);
     };
 
     const fetchProjectsData = async () => {
-      const response = await getProjectsWithUsers();
+      try {
+        const response = await getProjectsWithUsers();
 
-      if (response.status !== 200) {
-        console.error('ERROR');
+        processChartData(response.data);
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          if (error.response?.status === 401) {
+            toast({
+              title: 'Session Expired',
+              description:
+                'Your credentials have expired, you must log in again',
+              variant: 'destructive',
+            });
+            setTimeout(() => {
+              router.push('/auth/login');
+            }, 3000);
+          } else {
+            toast({
+              title: 'Error',
+              description: error.message,
+              variant: 'destructive',
+            });
+          }
+        }
       }
-
-      const projects = response.data;
-
-      processChartData(projects);
     };
 
     fetchProjectsData();
-  }, []);
+  }, [router, toast]);
 
   useEffect(() => {
     if (chartConfig !== undefined && chartData !== undefined) {

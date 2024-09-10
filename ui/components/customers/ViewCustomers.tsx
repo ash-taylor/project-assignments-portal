@@ -1,19 +1,23 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
-import { CustomerResponse } from '@/models/Customer';
-import { getCustomers } from '@/lib/api';
-import Customer from './customer';
-import { LoadingSpinner } from '../ui/loading-spinner';
 import { AxiosError } from 'axios';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
+
+import Customer from './customer';
 import { useToast } from '@/hooks/use-toast';
+import { getCustomers } from '@/lib/api';
+import { CustomerResponse } from '@/models/Customer';
+import { LoadingSpinner } from '../ui/loading-spinner';
 
 const ViewCustomers = () => {
   const [customers, setCustomers] = useState<CustomerResponse[] | undefined>(
     undefined
   );
   const [isReady, setIsReady] = useState<boolean>(false);
+
   const { toast } = useToast();
+  const router = useRouter();
 
   const fetchCustomers = useCallback(async () => {
     try {
@@ -24,14 +28,25 @@ const ViewCustomers = () => {
       setIsReady(true);
     } catch (error) {
       if (error instanceof AxiosError) {
-        toast({
-          variant: 'destructive',
-          title: 'Error Fetching Customers',
-          description: error.message,
-        });
+        if (error.response?.status === 401) {
+          toast({
+            title: 'Session Expired',
+            description: 'Your credentials have expired, you must log in again',
+            variant: 'destructive',
+          });
+          setTimeout(() => {
+            router.push('/auth/login');
+          }, 3000);
+        } else {
+          toast({
+            variant: 'destructive',
+            title: 'Error Fetching Customers',
+            description: error.message,
+          });
+        }
       }
     }
-  }, [toast]);
+  }, [router, toast]);
 
   const handleRefresh = () => {
     setCustomers(undefined);
