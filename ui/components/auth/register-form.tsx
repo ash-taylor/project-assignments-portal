@@ -136,13 +136,11 @@ const RegisterForm = () => {
                     </FormControl>
                     <FormMessage />
                     <SelectContent>
-                      <SelectItem value={UserRole.ENGINEER}>
-                        Engineer
-                      </SelectItem>
-                      <SelectItem value={UserRole.MANAGER}>Manager</SelectItem>
-                      <SelectItem value={UserRole.CUSTOMER}>
-                        Customer
-                      </SelectItem>
+                      {Object.values(UserRole).map((role, idx) => (
+                        <SelectItem key={idx} value={role}>
+                          {role}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </FormItem>
