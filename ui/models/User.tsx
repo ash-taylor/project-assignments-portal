@@ -3,7 +3,6 @@ import { ProjectResponse } from './Project';
 export enum UserRole {
   MANAGER = 'MANAGER',
   ENGINEER = 'ENGINEER',
-  CUSTOMER = 'CUSTOMER',
 }
 
 export class User {

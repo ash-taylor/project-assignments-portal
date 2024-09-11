@@ -3,7 +3,7 @@ from typing import List
 from api.database.models import User
 from api.database.interfaces.repository_interface import IRepository
 from api.schemas.auth import Token, TokenData
-from api.schemas.user import UserCreate
+from api.schemas.user import Roles, UserCreate
 from api.services.interfaces.auth_service_interface import IAuthService
 from api.services.interfaces.user_service_interface import IUserService
 from api.utils.exceptions import ExceptionHandler
@@ -47,6 +47,7 @@ class UserService(IUserService):
             last_name=user.last_name,
             email=user.email,
             role=user.role,
+            admin=user.role in Roles.MANAGER,
         )
         persisted_user = await self._user_repository.create(db_user)
 

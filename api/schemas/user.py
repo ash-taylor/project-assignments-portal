@@ -13,7 +13,6 @@ from pydantic import (
 class Roles(str, Enum):
     MANAGER = "MANAGER"
     ENGINEER = "ENGINEER"
-    CUSTOMER = "CUSTOMER"
 
 
 class UserBase(BaseModel):
