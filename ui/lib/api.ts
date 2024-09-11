@@ -6,7 +6,7 @@ import {
   ProjectWithUserResponse,
   UserWithProjectResponse,
 } from '@/models/Relations';
-import { UserCreate, UserLogin, UserResponse } from '@/models/User';
+import { UserCreate, UserLogin, UserResponse, UserUpdate } from '@/models/User';
 
 export const whoAmI = async () =>
   await axios.get<UserWithProjectResponse>('api/users/me', {
@@ -54,6 +54,11 @@ export const updateProject = async (
   project: ProjectCreate
 ) =>
   await axios.put<ProjectResponse>(`/api/project/${projectId}`, project, {
+    headers: { 'Content-Type': 'application/json' },
+  });
+
+export const updateUser = async (userId: string, user: UserUpdate) =>
+  await axios.patch<UserResponse>(`/api/user/${userId}`, user, {
     headers: { 'Content-Type': 'application/json' },
   });
 

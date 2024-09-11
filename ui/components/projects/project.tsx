@@ -158,7 +158,7 @@ const Project = ({ project, handleRefresh }: ProjectProps) => {
           });
           setTimeout(() => {
             return logout();
-          }, 3000);
+          }, 2000);
         } else {
           toast({
             variant: 'destructive',

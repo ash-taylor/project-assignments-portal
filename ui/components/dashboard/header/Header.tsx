@@ -1,5 +1,8 @@
 'use client';
 
+import { UserRoundIcon } from 'lucide-react';
+import { useContext, useState } from 'react';
+
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -10,12 +13,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import AuthContext from '@/context/AuthContext';
-import { UserRoundIcon } from 'lucide-react';
-import { useContext, useState } from 'react';
+import EditProfile from './EditProfile';
 
 export default function Header() {
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [loggingOut, setLoggingOut] = useState<boolean>(false);
-  const { logout } = useContext(AuthContext);
+  const { logout, user } = useContext(AuthContext);
 
   const handleLogout = async (e: Event) => {
     e.preventDefault();
@@ -24,10 +27,15 @@ export default function Header() {
     logout();
   };
 
+  const handleOpenDialog = (e: Event) => {
+    e.preventDefault();
+    setIsDialogOpen(true);
+  };
+
   return (
     <div className="sticky top-0 z-40 flex justify-between items-center pt-7 pb-7 pl-8 pr-8 border-b bg-white">
       <h2 className="text-3xl font-semibold tracking-tight transition-colors text-nowrap">
-        Project Assignments Portal - Dashboard - Welcome!
+        Welcome {user?.firstName}! Project Assignments Portal
       </h2>
 
       <DropdownMenu>
@@ -39,15 +47,21 @@ export default function Header() {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem className="cursor-pointer">
-            Profile
+          <DropdownMenuItem
+            className="cursor-pointer"
+            onSelect={handleOpenDialog}
+          >
+            Edit Profile
           </DropdownMenuItem>
-          <DropdownMenuItem>Projects</DropdownMenuItem>
           <DropdownMenuItem className="cursor-pointer" onSelect={handleLogout}>
             {loggingOut ? 'Logging out user...' : 'Logout'}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      <EditProfile
+        isDialogOpen={isDialogOpen}
+        setIsDialogOpen={setIsDialogOpen}
+      />
     </div>
   );
 }

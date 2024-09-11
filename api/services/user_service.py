@@ -3,7 +3,7 @@ from typing import List
 from api.database.models import User
 from api.database.interfaces.repository_interface import IRepository
 from api.schemas.auth import Token, TokenData
-from api.schemas.user import Roles, UserCreate
+from api.schemas.user import Roles, UserCreate, UserUpdate
 from api.services.interfaces.auth_service_interface import IAuthService
 from api.services.interfaces.user_service_interface import IUserService
 from api.utils.exceptions import ExceptionHandler
@@ -59,6 +59,15 @@ class UserService(IUserService):
             }
         )
         return Token(access_token=access_token, token_type="Bearer")
+
+    async def update_user(self, user_id: str, user: UserUpdate) -> User:
+        db_user = await self.find_user(user_id=user_id)
+
+        if db_user is None:
+            ExceptionHandler.raise_http_exception(404, "User not found")
+
+        updates = user.model_dump()
+        return await self._user_repository.update(db_user, updates=updates)
 
     async def get_user_by_id(self, user_id: str, project: bool = False) -> User:
         user = await self.find_user(
