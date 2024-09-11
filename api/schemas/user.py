@@ -16,14 +16,14 @@ class Roles(str, Enum):
 
 
 class UserBase(BaseModel):
-    user_name: str = Field(min_length=8, max_length=8, pattern="^[A-Za-z]")
     first_name: str = Field(min_length=1, max_length=128)
     last_name: str = Field(min_length=1, max_length=128)
-    role: Roles
     email: EmailStr
 
 
 class UserCreate(UserBase):
+    user_name: str = Field(min_length=8, max_length=8, pattern="^[A-Za-z]")
+    role: Roles
     password: str = Field(min_length=8, pattern="^[A-Za-z]")
 
     @field_validator("user_name", "email", mode="before")
@@ -53,9 +53,15 @@ class UserCreate(UserBase):
     }
 
 
+class UserUpdate(UserBase):
+    pass
+
+
 class UserOut(UserBase):
     model_config = ConfigDict(from_attributes=True)
+    user_name: str = Field(min_length=8, max_length=8, pattern="^[A-Za-z]")
     id: UUID4
+    role: Roles
     admin: bool
     active: bool
     project_id: Optional[UUID4]

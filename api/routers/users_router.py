@@ -13,7 +13,7 @@ from api.dependencies import (
 )
 from api.schemas.auth import TokenData
 from api.schemas.relationships import UserWithProjectOut
-from api.schemas.user import UserCreate, UserOut
+from api.schemas.user import UserCreate, UserOut, UserUpdate
 from api.services.interfaces.user_service_interface import IUserService
 
 router = APIRouter(prefix="/api")
@@ -39,6 +39,17 @@ async def create_user(
         secure=True,
         samesite="strict",
     )
+
+
+@router.patch("/user/{user_id}", tags=["users"], response_model=UserOut)
+async def update_user(
+    token: Annotated[TokenData, Depends(validate_user)],
+    user_id: Annotated[str, Depends(parse_user_id)],
+    user: UserUpdate,
+    user_service: Annotated[IUserService, Depends(get_user_service)],
+):
+    logger.info("user: %s invoked PATCH /user", token.username)
+    return await user_service.update_user(user_id=user_id, user=user)
 
 
 @router.get(

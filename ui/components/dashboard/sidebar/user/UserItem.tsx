@@ -20,7 +20,7 @@ const UserItem = () => {
           Hey {user?.firstName}!
         </h4>
         <p className="text-xs text-muted-foreground">
-          {user?.username} - [{user?.admin ? 'admin account' : 'user account'}]
+          {user?.username} - [{user?.role}]
         </p>
       </div>
     </div>

@@ -20,26 +20,26 @@ export class User {
   ) {}
 }
 
-export interface UserResponse {
-  user_name: string;
+export interface UserUpdate {
   first_name: string;
   last_name: string;
-  role: UserRole;
   email: string;
+}
+
+export interface UserCreate extends UserUpdate {
+  role: UserRole;
+  password: string;
+  user_name: string;
+  confirm_password: string;
+}
+
+export interface UserResponse extends UserUpdate {
+  user_name: string;
+  role: UserRole;
   id: string;
   admin: boolean;
   active: boolean;
   project_id: string | null;
-}
-
-export interface UserCreate {
-  role: UserRole;
-  email: string;
-  password: string;
-  user_name: string;
-  first_name: string;
-  last_name: string;
-  confirm_password: string;
 }
 
 export interface UserLogin {
