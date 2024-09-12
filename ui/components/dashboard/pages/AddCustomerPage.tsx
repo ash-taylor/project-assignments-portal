@@ -4,7 +4,7 @@ import DashboardFormCard from '@/components/cards/DashboardFormCard';
 import CustomerForm from '../../customers/customer-form';
 
 const description =
-  'Note: Projects must be assigned to customers after customer creation';
+  'Note: Please create and assign project after customer creation';
 
 const AddCustomerPage = () => {
   return (

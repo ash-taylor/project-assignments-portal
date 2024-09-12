@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import AuthContext from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { updateUser } from '@/lib/api';
-import { User, UserRole, UserUpdate } from '@/models/User';
+import { UserRole, UserUpdate } from '@/models/User';
 import { AxiosError } from 'axios';
 import { useContext, useState } from 'react';
 
@@ -96,7 +96,8 @@ const EditProfile = ({ isDialogOpen, setIsDialogOpen }: EditProfileProps) => {
         <DialogHeader>
           <DialogTitle>Edit profile</DialogTitle>
           <DialogDescription>
-            Make changes to your profile here. Click save when you&apos;re done.
+            Make changes to your profile here. <br />
+            Click save when you&apos;re done.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">

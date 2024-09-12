@@ -35,7 +35,7 @@ const Sidebar = ({ onNavigate }: SidebarProps) => {
         {
           link: '/dashboard',
           icon: <LayoutDashboardIcon />,
-          text: 'Dashboard',
+          text: 'Project Assignments Overview',
         },
       ],
     },
@@ -70,7 +70,7 @@ const Sidebar = ({ onNavigate }: SidebarProps) => {
       ],
     },
     {
-      group: 'Users',
+      group: 'Team',
       items: [
         {
           link: '/manage-users',
