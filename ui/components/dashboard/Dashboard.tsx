@@ -9,6 +9,7 @@ import DashboardHome from './pages/DashboardHome';
 import ViewCustomersPage from './pages/ViewCustomersPage';
 import ViewProjectsPage from './pages/ViewProjectsPage';
 import AddProjectPage from './pages/AddProjectPage';
+import ViewUsersPage from './pages/ViewUsersPage';
 
 const Dashboard = () => {
   const [currentPage, setCurrentPage] = useState<string>('/dashboard');
@@ -25,6 +26,8 @@ const Dashboard = () => {
         return <AddProjectPage />;
       case '/view-projects':
         return <ViewProjectsPage />;
+      case '/manage-users':
+        return <ViewUsersPage />;
       default:
         return <DashboardHome />;
     }

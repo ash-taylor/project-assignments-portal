@@ -32,6 +32,7 @@ import {
 } from '../ui/chart';
 import { LoadingSpinner } from '../ui/loading-spinner';
 import AuthContext from '@/context/AuthContext';
+import { ProjectStatus } from '@/models/Project';
 
 const ProjectsChart = () => {
   const [chartData, setChartData] =
@@ -41,7 +42,7 @@ const ProjectsChart = () => {
   const { toast } = useToast();
   const { logout } = useContext(AuthContext);
 
-  const description = 'Project engineering effort';
+  const description = 'Active Projects - Engineering Cost';
 
   const chartConfig = {
     engineers: {
@@ -59,13 +60,14 @@ const ProjectsChart = () => {
       }[] = [];
 
       projects.forEach((project) => {
-        data.push({
-          project: project.id,
-          name: project.name,
-          engineers: project.users.filter(
-            (user) => user.role === UserRole.ENGINEER
-          ).length,
-        });
+        if (project.status !== ProjectStatus.COMPLETE || ProjectStatus.PENDING)
+          data.push({
+            project: project.id,
+            name: project.name,
+            engineers: project.users.filter(
+              (user) => user.role === UserRole.ENGINEER
+            ).length,
+          });
       });
 
       setChartData(data);
@@ -111,7 +113,7 @@ const ProjectsChart = () => {
   return (
     <Card className="w-full h-full flex flex-col">
       <CardHeader className="flex-shrink-0">
-        <CardTitle>Project Assignments</CardTitle>
+        <CardTitle>Team Project Assignments</CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent className="flex-grow overflow-auto">
@@ -157,10 +159,11 @@ const ProjectsChart = () => {
         {isReady && (
           <>
             <div className="flex items-center gap-2 font-medium leading-none">
-              {chartData?.length} projects in flight
+              There are currently {chartData?.length} projects in
+              &apos;design&apos; or &apos;build&apos; phase.
             </div>
             <div className="leading-none text-muted-foreground">
-              Showing engineer project assignment numbers
+              Number of engineers assigned to each project
             </div>
           </>
         )}

@@ -34,8 +34,11 @@ export default function Header() {
 
   return (
     <div className="sticky top-0 z-40 flex justify-between items-center pt-7 pb-7 pl-8 pr-8 border-b bg-white">
+      <h2 className="text-3xl font-medium tracking-tight transition-colors text-nowrap">
+        Welcome {user?.firstName}!
+      </h2>
       <h2 className="text-3xl font-semibold tracking-tight transition-colors text-nowrap">
-        Welcome {user?.firstName}! Project Assignments Portal
+        Project Assignments Portal
       </h2>
 
       <DropdownMenu>
