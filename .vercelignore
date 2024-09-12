@@ -1,4 +1,5 @@
 .env
+alembic.ini
 alembic/
 dev-requirements.txt
 __pycache__/

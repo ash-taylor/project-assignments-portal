@@ -1,3 +1,4 @@
+import logging
 from typing import Annotated
 
 from fastapi import Depends, Form, Request
@@ -18,7 +19,10 @@ from api.services.interfaces.project_service_interface import IProjectService
 from api.services.interfaces.user_service_interface import IUserService
 from api.services.project_service import ProjectService
 from api.services.user_service import UserService
-from api.utils.exceptions import ExceptionHandler
+from api.utils.exceptions import ExceptionHandler, PasswordHashingError
+
+
+logger = logging.getLogger(__name__)
 
 
 async def get_db_session():
@@ -73,6 +77,7 @@ def validate_user(
     request: Request,
     auth_service: Annotated[IAuthService, Depends(get_auth_service)],
 ) -> TokenData:
+    logger.info("Validating user")
     token = request.cookies.get("access_token")
     if token is None:
         ExceptionHandler.raise_credentials_exception()
@@ -80,8 +85,11 @@ def validate_user(
 
 
 def validate_admin(token: Annotated[TokenData, Depends(validate_user)]) -> TokenData:
+    logger.info("Validating admin")
     if not token.admin:
+        logger.error("Forbidden access")
         ExceptionHandler.raise_forbidden_exception()
+    logger.info("Admin validated")
     return token
 
 
@@ -108,6 +116,9 @@ def hash_password(
     except ValidationError as e:
         errors = e.errors()
         ExceptionHandler.raise_http_exception(400, errors[0])
+    except PasswordHashingError as e:
+        logger.error("Password hashing error: %s", e)
+        ExceptionHandler.raise_internal_server_error()
 
 
 def parse_uuid(v: UUID4) -> str:

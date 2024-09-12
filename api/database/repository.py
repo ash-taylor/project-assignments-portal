@@ -3,12 +3,17 @@ import logging
 from typing import Dict, List, Type, TypeVar
 
 from sqlalchemy import and_, or_, select
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.database.interfaces.repository_interface import IRepository
 from api.database.session import Base
-from api.utils.exceptions import ExceptionHandler
+from api.utils.exceptions import (
+    AttributeNotFoundError,
+    DatabaseConnectionError,
+    IntegrityViolationError,
+    RepositoryError,
+)
 
 
 T = TypeVar("T", bound=Base)
@@ -17,16 +22,39 @@ logger = logging.getLogger(__name__)
 
 
 class Repository(IRepository[T]):
+    """
+    Repository for database interaction, utilising SQLAlchemy 2.0 ORM.
+    Repository is generic, so can be used in all service layers.
+
+    Args:
+        IRepository (Entity): Repository interface defining the CRUD methods required
+        for any inheriting repository class.
+    """
 
     def __init__(self, session: AsyncSession, entity: Type[T]) -> None:
+        logger.info("Initializing repository")
         self._session = session
         self._entity = entity
 
     async def create(self, entity: T) -> T:
-        self._session.add(entity)
-        await self._session.commit()
-        await self._session.refresh(entity)
-        return entity
+        logger.info("Creating entity")
+        try:
+            self._session.add(entity)
+            await self._session.commit()
+            await self._session.refresh(entity)
+            return entity
+        except IntegrityError as e:
+            await self._session.rollback()
+            logger.error("Integrity Error %s", e)
+            raise IntegrityViolationError(str(e)) from e
+        except OperationalError as e:
+            await self._session.rollback()
+            logger.error("Operational Error %s", e)
+            raise DatabaseConnectionError(str(e)) from e
+        except Exception as e:
+            await self._session.rollback()
+            logger.error("Repository error %s", e)
+            raise RepositoryError(str(e)) from e
 
     async def find(
         self,
@@ -34,20 +62,29 @@ class Repository(IRepository[T]):
         and_condition: bool = True,
         load_relations: List[str] | None = None,
     ) -> List[T] | None:
-        if not params:
-            return None
-        filters = self._generate_filters(params, and_condition)
-        results = list(
-            (await self._session.execute(select(self._entity).filter(filters)))
-            .scalars()
-            .all()
-        )
+        logger.info("Finding entity")
+        try:
+            if not params:
+                return None
 
-        if not load_relations:
+            filters = self._generate_filters(params, and_condition)
+            results = list(
+                (await self._session.execute(select(self._entity).filter(filters)))
+                .scalars()
+                .all()
+            )
+
+            if not load_relations:
+                return results
+
+            await self.load_awaitables(load_relations=load_relations, results=results)
             return results
-
-        await self.load_awaitables(load_relations=load_relations, results=results)
-        return results
+        except OperationalError as e:
+            logger.error("Operational Error %s", e)
+            raise DatabaseConnectionError(str(e)) from e
+        except Exception as e:
+            logger.error("Repository error %s", e)
+            raise RepositoryError(str(e)) from e
 
     async def update(
         self,
@@ -55,6 +92,7 @@ class Repository(IRepository[T]):
         updates: Dict[str, str | None],
         load_relations: List[str] | None = None,
     ) -> T:
+        logger.info("Updating entity")
         try:
             for attr, val in updates.items():
                 if not hasattr(item, attr):
@@ -72,26 +110,56 @@ class Repository(IRepository[T]):
         except IntegrityError as e:
             await self._session.rollback()
             logger.error("Integrity Error %s", e)
-            ExceptionHandler.raise_already_exists_exception()
+            raise IntegrityViolationError(str(e)) from e
         except AttributeError as e:
             await self._session.rollback()
-            logger.error("Integrity Error %s", e)
-            ExceptionHandler.raise_internal_server_error()
+            logger.error("Attribute Error %s", e)
+            raise AttributeNotFoundError(str(e)) from e
+        except OperationalError as e:
+            await self._session.rollback()
+            logger.error("Operational Error %s", e)
+            raise DatabaseConnectionError(str(e)) from e
+        except Exception as e:
+            await self._session.rollback()
+            logger.error("Repository error %s", e)
+            raise RepositoryError(str(e)) from e
 
     async def list_all(self, load_relations: List[str] | None = None) -> List[T]:
-        results = list(
-            (await self._session.execute(select(self._entity))).scalars().all()
-        )
+        logger.info("Listing all entities")
+        try:
+            results = list(
+                (await self._session.execute(select(self._entity))).scalars().all()
+            )
 
-        if not load_relations:
+            if not load_relations:
+                return results
+
+            await self.load_awaitables(load_relations=load_relations, results=results)
             return results
-
-        await self.load_awaitables(load_relations=load_relations, results=results)
-        return results
+        except OperationalError as e:
+            logger.error("Operational Error %s", e)
+            raise DatabaseConnectionError(str(e)) from e
+        except Exception as e:
+            logger.error("Repository error %s", e)
+            raise RepositoryError(str(e)) from e
 
     async def delete(self, item: T):
-        await self._session.delete(item)
-        return await self._session.commit()
+        logger.info("Deleting entity")
+        try:
+            await self._session.delete(item)
+            return await self._session.commit()
+        except OperationalError as e:
+            await self._session.rollback()
+            logger.error("Operational Error %s", e)
+            raise DatabaseConnectionError(str(e)) from e
+        except IntegrityError as e:
+            await self._session.rollback()
+            logger.error("Integrity Error %s", e)
+            raise IntegrityViolationError(str(e)) from e
+        except Exception as e:
+            await self._session.rollback()
+            logger.error("Repository error %s", e)
+            raise RepositoryError(str(e)) from e
 
     def _generate_filters(self, params: Dict[str, str], and_condition: bool):
         conditions = [
