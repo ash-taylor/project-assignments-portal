@@ -1,3 +1,8 @@
+'use client';
+
+import { AxiosError } from 'axios';
+import { useContext, useState } from 'react';
+
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -13,8 +18,6 @@ import AuthContext from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { updateUser } from '@/lib/api';
 import { UserRole, UserUpdate } from '@/models/User';
-import { AxiosError } from 'axios';
-import { useContext, useState } from 'react';
 
 interface EditProfileProps {
   isDialogOpen: boolean;
@@ -42,11 +45,9 @@ const EditProfile = ({ isDialogOpen, setIsDialogOpen }: EditProfileProps) => {
   const { toast } = useToast();
 
   const handleUpdateUser = async (userId: string, user: UserUpdate) => {
-    console.log('update user', userId, user);
-
     try {
       setIsUpdating(true);
-      const response = await updateUser(userId, user);
+      const response = await updateUser(user);
 
       toast({
         title: 'User updated successfully',
@@ -71,6 +72,18 @@ const EditProfile = ({ isDialogOpen, setIsDialogOpen }: EditProfileProps) => {
           setTimeout(() => {
             return logout();
           }, 2000);
+        } else if (error.response?.status === 403) {
+          toast({
+            title: 'Error - Cannot Update User!',
+            description: `You do not have permission to update this user!`,
+            variant: 'destructive',
+          });
+        } else if (error.response?.status === 404) {
+          toast({
+            title: 'Error - Cannot Find User!',
+            description: `User not found!`,
+            variant: 'destructive',
+          });
         } else if (error.response?.status === 409) {
           toast({
             title: 'Error - Cannot Update User!',

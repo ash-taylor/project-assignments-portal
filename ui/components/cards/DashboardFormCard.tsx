@@ -20,8 +20,8 @@ const DashboardFormCard = ({
   children,
 }: DashboardFormCardProps) => {
   return (
-    <div className="flex items-center justify-center h-full w-full">
-      <Card className="xl:w-1/4 md:w-1/2 shadow-md">
+    <div className="flex items-center justify-center h-full w-full min-w-[750px]">
+      <Card className="min-w-[400px] shadow-md">
         <CardHeader>
           <CardTitle>{title}</CardTitle>
           {description && <CardDescription>{description}</CardDescription>}

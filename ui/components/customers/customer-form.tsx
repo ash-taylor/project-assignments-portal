@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
+import AuthContext from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { createCustomer, updateCustomer } from '@/lib/api';
 import { AddCustomerSchema } from '@/schema';
@@ -19,7 +20,6 @@ import {
   FormMessage,
 } from '../ui/form';
 import { Input } from '../ui/input';
-import AuthContext from '@/context/AuthContext';
 
 interface AddCustomerFormProps {
   formType: 'add';
@@ -39,7 +39,11 @@ const CustomerForm = (props: CustomerFormProps) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const { toast } = useToast();
-  const { logout } = useContext(AuthContext);
+  const { isAdmin, logout } = useContext(AuthContext);
+
+  const errorTitle = `Error - Cannot ${
+    props.formType === 'add' ? 'Add' : 'Update'
+  } Customer!`;
 
   const form = useForm({
     resolver: zodResolver(AddCustomerSchema),
@@ -52,6 +56,13 @@ const CustomerForm = (props: CustomerFormProps) => {
   const handleSubmit = async (data: z.infer<typeof AddCustomerSchema>) => {
     setIsLoading(true);
     try {
+      if (!isAdmin())
+        return toast({
+          title: errorTitle,
+          description: 'You must have admin rights to perform this action',
+          variant: 'destructive',
+        });
+
       if (props.formType === 'edit') {
         await updateCustomer(props.customerId, data);
       } else {
@@ -77,9 +88,21 @@ const CustomerForm = (props: CustomerFormProps) => {
           setTimeout(() => {
             return logout();
           }, 2000);
+        } else if (error.response?.status === 403) {
+          toast({
+            title: errorTitle,
+            description: 'You must have admin rights to perform this action',
+            variant: 'destructive',
+          });
+        } else if (error.response?.status === 404) {
+          toast({
+            title: errorTitle,
+            description: 'Customer not found!',
+            variant: 'destructive',
+          });
         } else if (error.response?.status === 409) {
           toast({
-            title: 'Error - Cannot Update Customer!',
+            title: errorTitle,
             description: `Customer ${
               props.formType === 'edit' ? 'name' : ''
             } already exists!`,
@@ -87,7 +110,7 @@ const CustomerForm = (props: CustomerFormProps) => {
           });
         } else {
           toast({
-            title: 'Error',
+            title: errorTitle,
             description: 'Something went wrong!',
             variant: 'destructive',
           });

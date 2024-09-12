@@ -20,7 +20,7 @@ const DashboardViewCard = ({
   children,
 }: DashboardViewCardProps) => {
   return (
-    <Card className="w-full h-full flex flex-col">
+    <Card className="w-full h-full flex flex-col min-w-[750px]">
       <CardHeader className="flex-shrink-0">
         <CardTitle>{title}</CardTitle>
         {description && <CardDescription>{description}</CardDescription>}

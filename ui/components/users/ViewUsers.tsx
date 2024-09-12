@@ -16,11 +16,17 @@ const ViewUsers = () => {
   );
   const [isReady, setIsReady] = useState<boolean>(false);
 
+  const { isAdmin, logout } = useContext(AuthContext);
   const { toast } = useToast();
-  const { logout } = useContext(AuthContext);
 
   const fetchUsers = useCallback(async () => {
     try {
+      if (!isAdmin())
+        return toast({
+          variant: 'destructive',
+          title: 'Error Fetching Users',
+          description: 'You must have admin rights to perform this action',
+        });
       const response = await getUsers(true);
 
       setUsers(response.data);
@@ -37,6 +43,12 @@ const ViewUsers = () => {
           setTimeout(() => {
             return logout();
           }, 2000);
+        } else if (error.response?.status === 403) {
+          toast({
+            variant: 'destructive',
+            title: 'Error Fetching Users',
+            description: 'You must have admin rights to perform this action',
+          });
         } else {
           toast({
             variant: 'destructive',
@@ -46,7 +58,7 @@ const ViewUsers = () => {
         }
       }
     }
-  }, [logout, toast]);
+  }, [isAdmin, logout, toast]);
 
   const handleRefresh = () => {
     setUsers(undefined);
@@ -62,7 +74,7 @@ const ViewUsers = () => {
     <>
       {isReady ? (
         users?.map((user, idx) => (
-          <User key={idx} user={user} handleRefresh={handleRefresh} />
+          <User key={idx} member={user} handleRefresh={handleRefresh} />
         ))
       ) : (
         <div className="flex items-center justify-center h-full w-full">

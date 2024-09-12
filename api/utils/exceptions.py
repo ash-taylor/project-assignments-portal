@@ -20,7 +20,13 @@ class ExceptionHandler:
     @staticmethod
     def raise_unauthorized_exception() -> NoReturn:
         ExceptionHandler.raise_http_exception(
-            401, "Unauthorized to perform this action", auth_error=True
+            401, "User unauthorized to perform this action", auth_error=True
+        )
+
+    @staticmethod
+    def raise_forbidden_exception() -> NoReturn:
+        ExceptionHandler.raise_http_exception(
+            403, "User forbidden to perform this action", auth_error=True
         )
 
     @staticmethod

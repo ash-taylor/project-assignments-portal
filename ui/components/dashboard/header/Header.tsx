@@ -18,12 +18,12 @@ import EditProfile from './EditProfile';
 export default function Header() {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [loggingOut, setLoggingOut] = useState<boolean>(false);
+
   const { logout, user } = useContext(AuthContext);
 
   const handleLogout = async (e: Event) => {
     e.preventDefault();
     setLoggingOut(true);
-
     logout();
   };
 
@@ -33,7 +33,7 @@ export default function Header() {
   };
 
   return (
-    <div className="sticky top-0 z-40 flex justify-between items-center pt-7 pb-7 pl-8 pr-8 border-b bg-white">
+    <div className="sticky top-0 z-40 flex justify-between items-center pt-7 pb-7 pl-8 pr-8 border-b bg-white min-w-[750px]">
       <h2 className="text-3xl font-medium tracking-tight transition-colors text-nowrap">
         Welcome {user?.firstName}!
       </h2>

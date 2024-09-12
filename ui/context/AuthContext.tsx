@@ -1,6 +1,6 @@
 'use client';
 
-import axios from 'axios';
+import axios, { AxiosError, AxiosResponse } from 'axios';
 import { useRouter } from 'next/navigation';
 import {
   createContext,
@@ -19,9 +19,14 @@ import { LoginSchema, RegisterSchema } from '@/schema';
 type AuthContextType = {
   user: User | null;
   fetchUser: () => Promise<void>;
-  login: (data: z.infer<typeof LoginSchema>) => Promise<void>;
+  login: (
+    data: z.infer<typeof LoginSchema>
+  ) => Promise<AxiosResponse | undefined>;
   logout: () => void;
-  register: (data: z.infer<typeof RegisterSchema>) => Promise<void>;
+  register: (
+    data: z.infer<typeof RegisterSchema>
+  ) => Promise<AxiosResponse | undefined>;
+  isAdmin: () => boolean;
 };
 
 const loginRoute = '/auth/login';
@@ -31,7 +36,9 @@ const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isReady, setIsReady] = useState<boolean>(false);
   const [user_, setUser] = useState<User | null>(null);
+
   const user = useMemo(() => user_, [user_]);
+
   const router = useRouter();
 
   const fetchUser = useCallback(async () => {
@@ -57,23 +64,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return router.push('/dashboard');
     } catch (error) {
       setUser(null);
-      console.error('failed to fetch user', user);
     }
   }, [router, user]);
 
   const register = useCallback(
     async (data: z.infer<typeof RegisterSchema>) => {
       try {
-        const response = await createUser(data);
+        await createUser(data);
 
-        if (response.status !== 204) {
-          console.error('Failed to create user', response);
-          return router.push(loginRoute);
-        }
-        return await fetchUser();
+        await fetchUser();
       } catch (error) {
-        console.error('Create user failed', error);
-        return router.push(loginRoute);
+        if (error instanceof AxiosError) {
+          router.push(loginRoute);
+          return error.response;
+        }
       }
     },
     [fetchUser, router]
@@ -82,13 +86,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const login = useCallback(
     async (data: z.infer<typeof LoginSchema>) => {
       try {
-        const response = await logInUser(data);
+        await logInUser(data);
 
-        if (response.status === 401) return router.push(loginRoute);
-
-        return await fetchUser();
+        await fetchUser();
       } catch (error) {
-        console.error('Login Failed', error);
+        if (error instanceof AxiosError) {
+          router.push(loginRoute);
+          return error.response;
+        }
       }
     },
     [fetchUser, router]
@@ -97,13 +102,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const logout = useCallback(async () => {
     try {
       await logOutUser();
-    } catch (error) {
-      console.error('Logout failed', error);
     } finally {
       setUser(null);
       return router.push(loginRoute);
     }
   }, [router]);
+
+  const isAdmin = useCallback(() => {
+    return user?.admin || false;
+  }, [user?.admin]);
 
   useEffect(() => {
     axios.defaults.baseURL = window.location.origin;
@@ -115,7 +122,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [user, fetchUser]);
 
   return (
-    <AuthContext.Provider value={{ user, fetchUser, login, logout, register }}>
+    <AuthContext.Provider
+      value={{ user, fetchUser, isAdmin, login, logout, register }}
+    >
       {isReady ? (
         children
       ) : (

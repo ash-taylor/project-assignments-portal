@@ -57,7 +57,7 @@ async def get_project(
     response_model=List[Union[ProjectWithCustomerOut | ProjectWithUsersCustomerOut]],
 )
 async def get_all_projects(
-    token: Annotated[TokenData, Depends(validate_admin)],
+    token: Annotated[TokenData, Depends(validate_user)],
     project_service: Annotated[IProjectService, Depends(get_project_service)],
     users: bool = False,
 ):

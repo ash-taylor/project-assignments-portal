@@ -1,21 +1,11 @@
 import { AxiosError } from 'axios';
-import { CircleXIcon, PencilIcon, UserPlus2Icon } from 'lucide-react';
-import { SelectGroup } from '@radix-ui/react-select';
+import { CircleXIcon } from 'lucide-react';
 import { useContext, useState } from 'react';
 
 import AuthContext from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import {
-  assignProjectToUser,
-  deleteProject,
-  deleteUser,
-  getUsers,
-  unassignProjectFromUser,
-} from '@/lib/api';
-import { ProjectResponse, ProjectStatus } from '@/models/Project';
-import { UserRole } from '@/models/User';
+import { deleteUser } from '@/lib/api';
 import { UserWithProjectResponse } from '@/models/Relations';
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -35,48 +25,38 @@ import {
   CardHeader,
   CardTitle,
 } from '../ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '../ui/dialog';
 import { LoadingSpinner } from '../ui/loading-spinner';
-import { ScrollArea } from '../ui/scroll-area';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from '../ui/select';
-import { Separator } from '../ui/separator';
 
 interface UserProps {
-  user: UserWithProjectResponse;
+  member: UserWithProjectResponse;
   handleRefresh: () => void;
 }
 
-const User = ({ user, handleRefresh }: UserProps) => {
+const User = ({ member, handleRefresh }: UserProps) => {
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   const { toast } = useToast();
 
-  const { logout } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
 
   const handleDelete = async () => {
     try {
       setIsDeleting(true);
 
-      await deleteUser(user.id);
+      await deleteUser(member.id);
 
       toast({
         title: 'Success',
-        description: `${user.user_name} deleted`,
+        description: `${member.user_name} deleted${
+          user?.id === member.id ? '. You will now be logged out.' : ''
+        }`,
       });
+
+      if (user?.id === member.id) {
+        setTimeout(() => {
+          return logout();
+        }, 2000);
+      }
 
       handleRefresh();
     } catch (error) {
@@ -104,15 +84,16 @@ const User = ({ user, handleRefresh }: UserProps) => {
   const renderContent = () => {
     let projectDetails = null;
 
-    if (user.project) {
+    if (member.project) {
       projectDetails = (
         <div className="flex justify-between items-center">
           <div>
-            <p className="text-base">Project Name: {user.project.name}</p>
+            <p className="text-base">Project Name: {member.project.name}</p>
           </div>
-          {user.project.details && `Project Details: ${user.project.details}`}
+          {member.project.details &&
+            `Project Details: ${member.project.details}`}
           <div>
-            <p className="text-base">Project Status: {user.project.status}</p>
+            <p className="text-base">Project Status: {member.project.status}</p>
           </div>
         </div>
       );
@@ -132,7 +113,7 @@ const User = ({ user, handleRefresh }: UserProps) => {
       <CardHeader>
         <div className="flex justify-between items-center">
           <CardTitle>
-            {user.first_name} {user.last_name}
+            {member.first_name} {member.last_name}
           </CardTitle>
           <div className="flex gap-2">
             <AlertDialog>
@@ -145,8 +126,10 @@ const User = ({ user, handleRefresh }: UserProps) => {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete
-                    user: {user.first_name} {user.last_name}.
+                    {user?.id === member.id
+                      ? 'Deleting your own account will log you out. This action cannot be undone. You will be permanently deleted from the system.'
+                      : `This action cannot be undone. This will permanently delete
+                    user: ${member.first_name} ${member.last_name}.`}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -159,9 +142,9 @@ const User = ({ user, handleRefresh }: UserProps) => {
             </AlertDialog>
           </div>
         </div>
-        <CardDescription>Username: {user.user_name}</CardDescription>
-        <CardDescription>Role: {user.role}</CardDescription>
-        <CardDescription>Email: {user.email}</CardDescription>
+        <CardDescription>Username: {member.user_name}</CardDescription>
+        <CardDescription>Role: {member.role}</CardDescription>
+        <CardDescription>Email: {member.email}</CardDescription>
       </CardHeader>
 
       <CardContent>{renderContent()}</CardContent>

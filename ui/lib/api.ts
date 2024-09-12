@@ -35,8 +35,8 @@ export const getUsers = async (projects?: boolean) => {
   });
 };
 
-export const updateUser = async (userId: string, user: UserUpdate) =>
-  await axios.patch<UserResponse>(`/api/user/${userId}`, user, {
+export const updateUser = async (user: UserUpdate) =>
+  await axios.patch<UserResponse>(`/api/user`, user, {
     headers: { 'Content-Type': 'application/json' },
   });
 

@@ -62,7 +62,7 @@ async def get_customer(
     ],
 )
 async def get_all_customers(
-    token: Annotated[TokenData, Depends(validate_admin)],  # Requires admin rights
+    token: Annotated[TokenData, Depends(validate_user)],
     customer_service: Annotated[ICustomerService, Depends(get_customer_service)],
     projects: bool = False,
     users: bool = False,

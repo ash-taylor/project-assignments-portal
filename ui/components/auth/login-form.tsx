@@ -5,7 +5,6 @@ import { useContext, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import AuthContext from '@/context/AuthContext';
 import CardWrapper from '@/components/auth/card-wrapper';
 import { Button, ButtonLoading } from '@/components/ui/button';
 import {
@@ -17,11 +16,16 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import AuthContext from '@/context/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 import { LoginSchema } from '@/schema';
 
 const LoginForm = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const { login } = useContext(AuthContext);
+  const { toast } = useToast();
+
   const form = useForm({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
@@ -32,8 +36,25 @@ const LoginForm = () => {
 
   const handleLogin = async (data: z.infer<typeof LoginSchema>) => {
     setIsLoading(true);
-    await login(data);
-    setTimeout(() => setIsLoading(false), 1000);
+    const response = await login(data);
+
+    if (response?.status === 401) {
+      toast({
+        title: 'Error',
+        description: 'Invalid username or password',
+        variant: 'destructive',
+      });
+      form.reset();
+    } else if (response?.status !== 204) {
+      toast({
+        title: 'Error',
+        description: 'Unable to log in user',
+        variant: 'destructive',
+      });
+      form.reset();
+    }
+
+    setIsLoading(false);
   };
 
   return (
