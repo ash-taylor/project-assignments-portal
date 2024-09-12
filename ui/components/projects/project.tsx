@@ -56,6 +56,11 @@ import {
   SelectValue,
 } from '../ui/select';
 import { Separator } from '../ui/separator';
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '../ui/hover-card';
 
 interface ProjectProps {
   project: ProjectResponse | ProjectWithUserResponse;
@@ -64,19 +69,20 @@ interface ProjectProps {
 
 const Project = ({ project, handleRefresh }: ProjectProps) => {
   const [isReady, setIsReady] = useState<boolean>(true);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [users, setUsers] = useState<UserWithProjectResponse[]>();
   const [selectedUserId, setSelectedUserId] = useState<string | undefined>();
   const [usersLoaded, setUsersLoaded] = useState<boolean>(false);
   const [assigningUser, setAssigningUser] = useState<boolean>(false);
 
+  const { isAdmin, logout } = useContext(AuthContext);
   const { toast } = useToast();
 
-  const { logout } = useContext(AuthContext);
-
   const handleOpenUserAssign = async () => {
-    setSelectedUserId(undefined);
     try {
+      setSelectedUserId(undefined);
       setUsersLoaded(false);
+
       const response = await getUsers(true);
 
       setUsers(response.data);
@@ -93,6 +99,12 @@ const Project = ({ project, handleRefresh }: ProjectProps) => {
           setTimeout(() => {
             return logout();
           }, 2000);
+        } else if (error.response?.status === 403) {
+          toast({
+            title: 'Error Fetching Users',
+            description: 'You must have admin rights to perform this action',
+            variant: 'destructive',
+          });
         } else {
           toast({
             variant: 'destructive',
@@ -107,11 +119,15 @@ const Project = ({ project, handleRefresh }: ProjectProps) => {
   const handleDelete = async () => {
     try {
       setIsReady(false);
+      setIsDeleting(true);
+
       await deleteProject(project.id);
+
       toast({
         title: 'Success',
         description: `${project.name} deleted`,
       });
+
       handleRefresh();
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -124,6 +140,12 @@ const Project = ({ project, handleRefresh }: ProjectProps) => {
           setTimeout(() => {
             return logout();
           }, 2000);
+        } else if (error.response?.status === 403) {
+          toast({
+            title: 'Error Deleting Project',
+            description: 'You must have admin rights to perform this action',
+            variant: 'destructive',
+          });
         } else {
           toast({
             variant: 'destructive',
@@ -159,6 +181,12 @@ const Project = ({ project, handleRefresh }: ProjectProps) => {
           setTimeout(() => {
             return logout();
           }, 2000);
+        } else if (error.response?.status === 403) {
+          toast({
+            title: 'Error Assigning User to Project',
+            description: 'You must have admin rights to perform this action',
+            variant: 'destructive',
+          });
         } else {
           toast({
             variant: 'destructive',
@@ -192,6 +220,12 @@ const Project = ({ project, handleRefresh }: ProjectProps) => {
           setTimeout(() => {
             return logout();
           }, 3000);
+        } else if (error.response?.status === 403) {
+          toast({
+            title: 'Error Unassigning User from Project',
+            description: 'You must have admin rights to perform this action',
+            variant: 'destructive',
+          });
         } else {
           toast({
             variant: 'destructive',
@@ -242,14 +276,29 @@ const Project = ({ project, handleRefresh }: ProjectProps) => {
                         {user.first_name} {user.last_name} - {user.role}
                       </div>
                       {
-                        <Button
-                          variant="destructive"
-                          size="icon"
-                          onClick={() => handleUserUnassign(user.id)}
-                          disabled={assigningUser}
-                        >
-                          <CircleXIcon />
-                        </Button>
+                        <HoverCard>
+                          <HoverCardTrigger>
+                            <Button
+                              variant="destructive"
+                              size="icon"
+                              onClick={() => handleUserUnassign(user.id)}
+                              disabled={!isAdmin() || assigningUser}
+                            >
+                              {assigningUser ? (
+                                <LoadingSpinner />
+                              ) : (
+                                <CircleXIcon />
+                              )}
+                            </Button>
+                          </HoverCardTrigger>
+                          {!isAdmin() && (
+                            <HoverCardContent>
+                              <p className="text-sm">
+                                Only admins can access this option
+                              </p>
+                            </HoverCardContent>
+                          )}
+                        </HoverCard>
                       }
                     </div>
                     <Separator className="my-2" />
@@ -275,104 +324,136 @@ const Project = ({ project, handleRefresh }: ProjectProps) => {
         <div className="flex justify-between items-center">
           <CardTitle>{project.name}</CardTitle>
           <div className="flex gap-2">
-            <Dialog>
-              <DialogTrigger onClick={handleOpenUserAssign}>
-                <Button variant="outline" size="icon">
-                  <UserPlus2Icon />
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>
-                    Assign User to Project: {project.name}
-                  </DialogTitle>
-                </DialogHeader>
-                <Select onValueChange={handleUserSelect}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select a user" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.values(UserRole).map((role, idx) => (
-                      <SelectGroup key={idx}>
-                        <SelectLabel>{role}</SelectLabel>
-                        {usersLoaded ? (
-                          users?.map(
-                            (user, idx) =>
-                              user.role === role &&
-                              !user.project && (
-                                <SelectItem key={idx} value={user.id}>
-                                  {user.first_name} {user.last_name}
-                                </SelectItem>
+            <HoverCard>
+              <HoverCardTrigger>
+                <Dialog>
+                  <DialogTrigger onClick={handleOpenUserAssign} asChild>
+                    <Button variant="outline" size="icon" disabled={!isAdmin()}>
+                      <UserPlus2Icon />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>
+                        Assign User to Project: {project.name}
+                      </DialogTitle>
+                    </DialogHeader>
+                    <Select onValueChange={handleUserSelect}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a user" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.values(UserRole).map((role, idx) => (
+                          <SelectGroup key={idx}>
+                            <SelectLabel>{role}</SelectLabel>
+                            {usersLoaded ? (
+                              users?.map(
+                                (user, idx) =>
+                                  user.role === role &&
+                                  !user.project && (
+                                    <SelectItem key={idx} value={user.id}>
+                                      {user.first_name} {user.last_name}
+                                    </SelectItem>
+                                  )
                               )
-                          )
-                        ) : (
-                          <SelectItem disabled value=" ">
-                            Loading Users...
-                          </SelectItem>
-                        )}
-                      </SelectGroup>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {assigningUser ? (
-                  <LoadingSpinner message="Assigning User to Project" />
-                ) : (
-                  <Button
-                    variant="default"
-                    disabled={!selectedUserId ? true : false}
-                    onClick={handleUserAssign}
-                  >
-                    Assign User
-                  </Button>
-                )}
-              </DialogContent>
-            </Dialog>
-            <Dialog>
-              <DialogTrigger>
-                <Button variant="outline" size="icon">
-                  <PencilIcon />
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Edit Project</DialogTitle>
-                  <DialogDescription>
-                    Make changes to the project here
-                  </DialogDescription>
-                </DialogHeader>
-                <ProjectForm
-                  formType="edit"
-                  projectId={project.id}
-                  projectName={project.name}
-                  projectStatus={project.status as ProjectStatus}
-                  projectDetails={project.details}
-                  customerId={project.customer.id}
-                  handleRefresh={handleRefresh}
-                />
-              </DialogContent>
-            </Dialog>
-            <AlertDialog>
-              <AlertDialogTrigger>
-                <Button variant="destructive" size="icon">
-                  <CircleXIcon />
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete
-                    {project.name}.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDelete}>
-                    Continue
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+                            ) : (
+                              <SelectItem disabled value=" ">
+                                Loading Users...
+                              </SelectItem>
+                            )}
+                          </SelectGroup>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {assigningUser ? (
+                      <LoadingSpinner message="Assigning User to Project" />
+                    ) : (
+                      <Button
+                        variant="default"
+                        disabled={!selectedUserId ? true : false}
+                        onClick={handleUserAssign}
+                      >
+                        Assign User
+                      </Button>
+                    )}
+                  </DialogContent>
+                </Dialog>
+              </HoverCardTrigger>
+              {!isAdmin() && (
+                <HoverCardContent>
+                  <p className="text-sm">Only admins can access this option</p>
+                </HoverCardContent>
+              )}
+            </HoverCard>
+            <HoverCard>
+              <HoverCardTrigger>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="icon" disabled={!isAdmin()}>
+                      <PencilIcon />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Edit Project</DialogTitle>
+                      <DialogDescription>
+                        Make changes to the project here
+                      </DialogDescription>
+                    </DialogHeader>
+                    <ProjectForm
+                      formType="edit"
+                      projectId={project.id}
+                      projectName={project.name}
+                      projectStatus={project.status as ProjectStatus}
+                      projectDetails={project.details}
+                      customerId={project.customer.id}
+                      handleRefresh={handleRefresh}
+                    />
+                  </DialogContent>
+                </Dialog>
+              </HoverCardTrigger>
+              {!isAdmin() && (
+                <HoverCardContent>
+                  <p className="text-sm">Only admins can access this option</p>
+                </HoverCardContent>
+              )}
+            </HoverCard>
+            <HoverCard>
+              <HoverCardTrigger>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      disabled={!isAdmin()}
+                    >
+                      {isDeleting ? <LoadingSpinner /> : <CircleXIcon />}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently
+                        delete
+                        {project.name}.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDelete}>
+                        Continue
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </HoverCardTrigger>
+              {!isAdmin() && (
+                <HoverCardContent>
+                  <p className="text-sm">Only admins can access this option</p>
+                </HoverCardContent>
+              )}
+            </HoverCard>
           </div>
         </div>
         <CardDescription>Customer: {project.customer.name}</CardDescription>

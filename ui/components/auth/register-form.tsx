@@ -1,13 +1,16 @@
 'use client';
 
-import AuthContext from '@/context/AuthContext';
-import { UserRole } from '@/models/User';
-import { RegisterSchema } from '@/schema';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useContext, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+
 import CardWrapper from './card-wrapper';
+import AuthContext from '@/context/AuthContext';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useToast } from '@/hooks/use-toast';
+import { UserRole } from '@/models/User';
+import { RegisterSchema } from '@/schema';
+import { Button, ButtonLoading } from '../ui/button';
 import {
   Form,
   FormControl,
@@ -24,11 +27,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
-import { Button, ButtonLoading } from '../ui/button';
 
 const RegisterForm = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const { register } = useContext(AuthContext);
+  const { toast } = useToast();
+
   const form = useForm({
     resolver: zodResolver(RegisterSchema),
     defaultValues: {
@@ -41,11 +46,22 @@ const RegisterForm = () => {
       confirm_password: '',
     },
   });
+
   const handleRegister = async (data: z.infer<typeof RegisterSchema>) => {
     setIsLoading(true);
-    await register(data);
-    setTimeout(() => setIsLoading(false), 1000);
+    const response = await register(data);
+
+    if (response?.status === 400) {
+      toast({
+        title: 'Error',
+        description: response.data.detail,
+        variant: 'destructive',
+      });
+    }
+    form.reset();
+    setIsLoading(false);
   };
+
   return (
     <CardWrapper
       label="Create an account"

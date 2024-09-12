@@ -7,6 +7,7 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import AuthContext from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { createProject, getCustomers, updateProject } from '@/lib/api';
 import { cn } from '@/lib/utils';
@@ -40,7 +41,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
-import AuthContext from '@/context/AuthContext';
 
 interface AddProjectFormProps {
   formType: 'add';
@@ -65,8 +65,12 @@ const ProjectForm = (props: ProjectFormProps) => {
   const [isReady, setIsReady] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  const errorTitle = `Error - Cannot ${
+    props.formType === 'add' ? 'Add' : 'Update'
+  } Project!`;
+
   const { toast } = useToast();
-  const { logout } = useContext(AuthContext);
+  const { isAdmin, logout } = useContext(AuthContext);
 
   const form = useForm({
     resolver: zodResolver(AddProjectSchema),
@@ -84,6 +88,13 @@ const ProjectForm = (props: ProjectFormProps) => {
   const handleSubmit = async (data: z.infer<typeof AddProjectSchema>) => {
     setIsLoading(true);
     try {
+      if (!isAdmin())
+        return toast({
+          title: errorTitle,
+          description: 'You must have admin rights to perform this action',
+          variant: 'destructive',
+        });
+
       if (props.formType === 'edit') {
         await updateProject(props.projectId, data);
       } else {
@@ -109,9 +120,21 @@ const ProjectForm = (props: ProjectFormProps) => {
           setTimeout(() => {
             return logout();
           }, 2000);
+        } else if (error.response?.status === 403) {
+          toast({
+            title: errorTitle,
+            description: 'You must have admin rights to perform this action',
+            variant: 'destructive',
+          });
+        } else if (error.response?.status === 404) {
+          toast({
+            title: errorTitle,
+            description: 'Project not found!',
+            variant: 'destructive',
+          });
         } else if (error.response?.status === 409) {
           toast({
-            title: 'Error - Cannot Update Project!',
+            title: errorTitle,
             description: `Project ${
               props.formType === 'edit' ? 'name' : ''
             } already exists!`,
@@ -119,7 +142,7 @@ const ProjectForm = (props: ProjectFormProps) => {
           });
         } else {
           toast({
-            title: 'Error',
+            title: errorTitle,
             description: 'Something went wrong!',
             variant: 'destructive',
           });

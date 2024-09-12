@@ -11,9 +11,11 @@ import {
   YAxis,
 } from 'recharts';
 
+import AuthContext from '@/context/AuthContext';
 import CustomXAxisTickWrapper from '../dashboard/utils/TickWrapper';
 import { useToast } from '@/hooks/use-toast';
 import { getProjectsWithUsers } from '@/lib/api';
+import { ProjectStatus } from '@/models/Project';
 import { ProjectWithUserResponse } from '@/models/Relations';
 import { UserRole } from '@/models/User';
 import {
@@ -31,8 +33,6 @@ import {
   ChartTooltipContent,
 } from '../ui/chart';
 import { LoadingSpinner } from '../ui/loading-spinner';
-import AuthContext from '@/context/AuthContext';
-import { ProjectStatus } from '@/models/Project';
 
 const ProjectsChart = () => {
   const [chartData, setChartData] =
@@ -111,7 +111,7 @@ const ProjectsChart = () => {
   }, [chartConfig, chartData, isReady, setIsReady]);
 
   return (
-    <Card className="w-full h-full flex flex-col">
+    <Card className="w-full h-full flex flex-col min-w-[500px]">
       <CardHeader className="flex-shrink-0">
         <CardTitle>Team Project Assignments</CardTitle>
         <CardDescription>{description}</CardDescription>
@@ -120,7 +120,7 @@ const ProjectsChart = () => {
         {isReady ? (
           <ChartContainer
             config={chartConfig}
-            className="h-full w-full min-w-[600px]"
+            className="h-full w-full min-w-[750px]"
           >
             <ResponsiveContainer width="100%" height="100%">
               <BarChart

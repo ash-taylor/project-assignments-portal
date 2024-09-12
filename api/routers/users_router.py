@@ -41,15 +41,14 @@ async def create_user(
     )
 
 
-@router.patch("/user/{user_id}", tags=["users"], response_model=UserOut)
-async def update_user(
+@router.patch("/user", tags=["users"], response_model=UserOut)
+async def update_self(
     token: Annotated[TokenData, Depends(validate_user)],
-    user_id: Annotated[str, Depends(parse_user_id)],
     user: UserUpdate,
     user_service: Annotated[IUserService, Depends(get_user_service)],
 ):
     logger.info("user: %s invoked PATCH /user", token.username)
-    return await user_service.update_user(user_id=user_id, user=user)
+    return await user_service.update_user(user_id=str(token.id), user=user)
 
 
 @router.get(

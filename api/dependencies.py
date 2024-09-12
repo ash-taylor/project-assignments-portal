@@ -80,8 +80,8 @@ def validate_user(
 
 
 def validate_admin(token: Annotated[TokenData, Depends(validate_user)]) -> TokenData:
-    if token.admin:
-        ExceptionHandler.raise_unauthorized_exception()
+    if not token.admin:
+        ExceptionHandler.raise_forbidden_exception()
     return token
 
 
