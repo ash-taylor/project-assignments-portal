@@ -16,6 +16,11 @@ class Config:
     log_level = environ["LOG_LEVEL"]
     db_echo = environ["DB_ECHO"]
     oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+    admin_username = environ["ADMIN_USERNAME"]
+    admin_password = environ["ADMIN_PASSWORD"]
+    admin_email = environ["ADMIN_EMAIL"]
+    admin_first_name = environ["ADMIN_FNAME"]
+    admin_last_name = environ["ADMIN_LNAME"]
 
 
 app_config = Config()

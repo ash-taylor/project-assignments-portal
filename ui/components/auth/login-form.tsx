@@ -45,16 +45,8 @@ const LoginForm = () => {
         variant: 'destructive',
       });
       form.reset();
-    } else if (response?.status !== 204) {
-      toast({
-        title: 'Error',
-        description: 'Unable to log in user',
-        variant: 'destructive',
-      });
-      form.reset();
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   return (

@@ -8,6 +8,7 @@
 - [Environment](#14-environment)
 - [Database](#15-database)
 - [Database Init](#151-database-init-fresh-install-only)
+- [Database Seed](#152-database-seed-fresh-install-only)
 - [Running Locally](#2-running-locally)
 - [Running the API & UI Separately](#21-running-the-api-and-ui-separately-optional)
 - [Accessing the Application](#22-accessing-the-application)
@@ -35,15 +36,13 @@ This section will get you started with setting up the codebase locally for devel
 
 ### 1.2. Prerequisites
 
-What things you need to install the software and how to install them
-
 - Base requirements
   - [Alembic 1.13.2+](https://alembic.sqlalchemy.org/)
   - [Python 3.12.+](https://www.python.org/)
   - [Node.js v20.x](https://nodejs.org/en/)
   - [pnpm v9.9.0](https://pnpm.io/)
 
-### 1.2.1 Optional Tools
+### 1.2.1. Optional Tools
 
 - Additional requirements
   - [Vercel CLI](https://vercel.com/docs/cli)
@@ -90,7 +89,9 @@ cp .env.example .env
 
 Alembic is the tool used by this project for database migrations.
 
-#### 1.5.1 Database Init (Fresh Install Only)
+This project has only been configured and tested using a Vercel postgresql database, if you are attempting to deploy onto an alternative database make sure you adjust the configuration appropriately.
+
+#### 1.5.1. Database Init (Fresh Install Only)
 
 If this is a fresh install and deployment a new database migration will be needed. This will create the tables and data models in your postgresql database.
 
@@ -124,7 +125,15 @@ To deploy the migration to the database:
 alembic upgrade head
 ```
 
-This project has only been configured and tested using a Vercel postgresql database, if you are attempting to deploy onto an alternative database make sure you adjust the configuration appropriately.
+#### 1.5.2. Database Seed (Fresh Install Only)
+
+Make sure the necessary admin environment variables have been added to the [.env](.env) file.
+
+From the project root, run:
+
+```bash
+pnpm seed-database
+```
 
 ## 2. Running Locally
 
@@ -151,16 +160,17 @@ pnpm ui:dev
 By default, the UI can be accessed locally by visiting <http://localhost:3000>
 
 - The UI will run on port 3000 and the backend on port 8000.
-- You will see a log in screen. You will need to first create an account:
-  - Create an account, make sure to select role: 'MANAGER' - this generates an admin account.
-  - On creation you will be logged in to the application.
+- You will see a log in screen.:
+  - Login with the defined admin credentials.
   - You can now:
     - Create, update and delete Customers.
     - Create, update and delete Projects.
       - (A Project had to be associated with a Customer)
     - Assign / Unassign team members from projects.
     - Edit your own profile.
+- When logged out you can also create new users.
 - A general user ('ENGINEER') account only has read access - they cannot create / update / delete any entities. They can update their own user profile.
+- An admin user ('MANAGER') has full admin rights in the application.
 
 ## 3. Deployment
 

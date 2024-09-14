@@ -4,4 +4,5 @@ alembic/
 dev-requirements.txt
 __pycache__/
 *.pyc
+seed_database.py
 .venv/

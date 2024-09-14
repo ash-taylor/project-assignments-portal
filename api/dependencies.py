@@ -49,26 +49,26 @@ def get_project_repository(
 
 
 def get_auth_service(
-    user_repository: Annotated[Repository, Depends(get_user_repository)]
+    user_repository: Annotated[IRepository, Depends(get_user_repository)]
 ) -> IAuthService:
     return AuthService(user_repository)
 
 
 def get_project_service(
-    project_repository: Annotated[Repository, Depends(get_project_repository)]
+    project_repository: Annotated[IRepository, Depends(get_project_repository)]
 ) -> IProjectService:
     return ProjectService(project_repository)
 
 
 def get_user_service(
-    user_repository: Annotated[Repository, Depends(get_user_repository)],
+    user_repository: Annotated[IRepository, Depends(get_user_repository)],
     auth_service: Annotated[IAuthService, Depends(get_auth_service)],
 ) -> IUserService:
     return UserService(user_repository, auth_service)
 
 
 def get_customer_service(
-    customer_repository: Annotated[Repository, Depends(get_customer_repository)]
+    customer_repository: Annotated[IRepository, Depends(get_customer_repository)]
 ) -> ICustomerService:
     return CustomerService(customer_repository)
 
