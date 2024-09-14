@@ -172,7 +172,7 @@ By deploying the application on Vercel, the Python backend will be deployed onto
 
 ## Author
 
-- **Ashley Taylor** - _Initial work_ - [PurpleBooth](https://github.com/PurpleBooth)
+- **Ashley Taylor** - [GitHub](https://github.com/ash-taylor)
 
 ## License
 
