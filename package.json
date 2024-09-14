@@ -10,6 +10,7 @@
     "api:install": "pip3 install -r api/requirements.txt",
     "api:install-dev": "pnpm api:install && pip3 install -r api/dev-requirements.txt",
     "api:dev": "python3 -m uvicorn api.index:app --reload",
+    "seed-database": "python3 seed_database.py",
     "ui:dev": "pnpm --filter ui dev",
     "ui:build": "pnpm --filter ui build",
     "ui:start": "pnpm --filter ui start",
