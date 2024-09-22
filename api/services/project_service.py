@@ -1,3 +1,5 @@
+"""The Service layer for all project API routes"""
+
 import logging
 from typing import List
 
@@ -20,11 +22,33 @@ logger = logging.getLogger(__name__)
 
 
 class ProjectService(IProjectService):
+    """The service for all project routes.
+    Contains all business logic
+
+    Args:
+        IProjectService: Interface defining required functionalities
+    """
+
     def __init__(self, project_repository: IRepository[Project]) -> None:
+        """Initialize the service
+
+        Args:
+            project_repository (IRepository[Project]): The repository layer for database interactions
+        """
+
         logger.info("Initializing ProjectService")
         self._project_repository = project_repository
 
     async def create_project(self, project: ProjectCreate):
+        """Functionality for 'Project' entity creation and storage
+
+        Args:
+            project (ProjectCreate): Validated Pydantic ProjectCreate model
+
+        Returns:
+            Project: The successfully stored and created project
+        """
+
         try:
             logger.info("Creating project")
             if await self.find_project(name=project.name):
@@ -56,6 +80,16 @@ class ProjectService(IProjectService):
             ExceptionHandler.raise_internal_server_error()
 
     async def update_project(self, project_id: str, project: ProjectUpdate) -> Project:
+        """Functionality for updating an existing project entity
+
+        Args:
+            project_id (str): The ID of project to update
+            project (ProjectUpdate): Validated Pydantic ProjectUpdate model
+
+        Returns:
+            Project: Updated project
+        """
+
         try:
             logger.info("Updating project")
             db_project = await self.find_project(project_id=project_id)
@@ -91,6 +125,17 @@ class ProjectService(IProjectService):
         project_id: str | None = None,
         users: bool = False,
     ) -> Project:
+        """Functionality for retrieving a project entity from database
+
+        Args:
+            name (str | None, optional): Name of project to find. Defaults to None.
+            project_id (str | None, optional): ID of project to find. Defaults to None.
+            users (bool, optional): Include project's related users? Defaults to False.
+
+        Returns:
+            Project: Retrieved project entity
+        """
+
         try:
             logger.info("Getting project")
             if not name and not project_id:
@@ -123,6 +168,15 @@ class ProjectService(IProjectService):
             ExceptionHandler.raise_internal_server_error()
 
     async def list_projects(self, users: bool = False) -> List[Project]:
+        """Functionality for listing all projects in the database.
+
+        Args:
+            users (bool, optional): Include project's related users? Defaults to False.
+
+        Returns:
+            List[Project]: A list containing all project entities
+        """
+
         try:
             logger.info("Listing projects")
             projects = await self._project_repository.list_all(
@@ -145,6 +199,20 @@ class ProjectService(IProjectService):
         name: str | None = None,
         project_id: str | None = None,
     ) -> Project | None:
+        """Functionality for finding a project in the database.
+
+        Project can be found by either name or ID.
+
+        Args:
+            load_relations (List[str] | None, optional): Dict containing any related entities
+            to load async. Defaults to None.
+            name (str | None, optional): Name of project to find. Defaults to None.
+            project_id (str | None, optional): ID of project to find. Defaults to None.
+
+        Returns:
+            Project | None: The found project entity or None
+        """
+
         try:
             logger.info("Finding project")
             params = {
@@ -180,6 +248,13 @@ class ProjectService(IProjectService):
             ExceptionHandler.raise_internal_server_error()
 
     async def delete_project(self, project_id: str) -> None:
+        """Functionality to find and delete a project entity
+
+        Args:
+            project_id (str): The ID of the project to delete
+
+        """
+
         try:
             logger.info("Deleting project")
             project = await self.find_project(project_id=project_id)

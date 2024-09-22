@@ -1,3 +1,5 @@
+"""Generic Repository interface module"""
+
 from abc import ABC, abstractmethod
 from typing import Dict, Generic, List, TypeVar
 
@@ -6,6 +8,12 @@ T = TypeVar("T")
 
 
 class IRepository(ABC, Generic[T]):
+    """Generic Repository Interface defining the shape of the inheriting repository.
+
+    Args:
+        Generic (T): The database entity model, populates 'T' for typing.
+    """
+
     @abstractmethod
     async def create(self, entity: T) -> T:
         pass

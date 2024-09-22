@@ -1,3 +1,11 @@
+"""
+Pydantic validation models for entity relationship 
+requests and responses.
+
+(Module necessary to avoid circular dependencies between entity models)
+
+"""
+
 from typing import List, Optional
 from api.schemas.customer import CustomerOut
 from api.schemas.project import ProjectOut

@@ -6,6 +6,11 @@ from api.schemas.customer import CustomerCreate, CustomerUpdate
 
 
 class ICustomerService(ABC):
+    """Service interface for Customer Service
+
+    Defines necessary functions for inheriting service
+    """
+
     @abstractmethod
     async def create_customer(self, customer: CustomerCreate) -> Customer:
         pass

@@ -7,6 +7,11 @@ from api.schemas.user import UserCreate, UserUpdate
 
 
 class IUserService(ABC):
+    """Service interface for User Service
+
+    Defines necessary functions for inheriting service
+    """
+
     @abstractmethod
     async def create_user(self, user: UserCreate) -> Token:
         pass

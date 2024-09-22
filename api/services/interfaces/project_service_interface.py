@@ -6,6 +6,11 @@ from api.schemas.project import ProjectCreate, ProjectUpdate
 
 
 class IProjectService(ABC):
+    """Service interface for Project Service
+
+    Defines necessary functions for inheriting service
+    """
+
     @abstractmethod
     async def create_project(self, project: ProjectCreate):
         pass

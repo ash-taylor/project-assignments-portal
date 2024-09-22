@@ -1,3 +1,5 @@
+"""Module containing App Config class to access env variables"""
+
 from os import environ
 from dotenv import load_dotenv
 from fastapi.security import OAuth2PasswordBearer
@@ -7,6 +9,8 @@ load_dotenv()
 
 
 class Config:
+    """Class containing application secrets obtained from '.env. file."""
+
     environment = environ["ENVIRONMENT"]
     database_url = environ["DB_POSTGRES_URL"]
     token_url = environ["TOKEN_URL"]

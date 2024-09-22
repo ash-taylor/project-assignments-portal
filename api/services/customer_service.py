@@ -1,3 +1,5 @@
+"""The Service layer for all customer API routes"""
+
 import logging
 from typing import List
 
@@ -20,18 +22,41 @@ logger = logging.getLogger(__name__)
 
 
 class CustomerService(ICustomerService):
+    """The service for all customer routes.
+    Contains all business logic
+
+    Args:
+        ICustomerService: Interface defining required functionalities
+    """
+
     def __init__(self, customer_repository: IRepository[Customer]) -> None:
+        """Initialize the service
+
+        Args:
+            customer_repository (IRepository[Customer]): The repository layer for database interactions
+        """
         logger.info("Initializing CustomerService")
         self._customer_repository = customer_repository
 
     async def create_customer(self, customer: CustomerCreate) -> Customer:
+        """Functionality for 'Customer' entity creation and storage
+
+        Args:
+            customer (CustomerCreate): Validated Pydantic CustomerCreate model
+
+        Returns:
+            Customer: The successfully stored and created customer
+        """
+
         try:
             logger.info("Creating customer")
+            # Check whether customer with same name exists
             if await self.find_customer(name=customer.name):
                 raise CustomerAlreadyExistsError
 
             logger.info("Customer does not exist")
 
+            # Create a customer database model
             db_customer = Customer(name=customer.name, details=customer.details)
             logger.info("Customer created")
             return await self._customer_repository.create(db_customer)
@@ -54,16 +79,28 @@ class CustomerService(ICustomerService):
     async def update_customer(
         self, customer_id: str, customer: CustomerUpdate
     ) -> Customer:
+        """Functionality for updating an existing customer entity
+
+        Args:
+            customer_id (str): The ID of customer to update
+            customer (CustomerUpdate): Validated Pydantic CustomerUpdate model
+
+        Returns:
+            Customer: Updated customer
+        """
+
         try:
+            # Get the existing customer entity from DB
             db_customer = await self.find_customer(customer_id=customer_id)
+
+            # Check requested customer exists
             if db_customer is None:
                 raise CustomerNotFoundError
             logger.info("Customer found")
 
-            updates = customer.model_dump()
-            logger.info("Customer updated")
+            logger.info("Updating customer")
             return await self._customer_repository.update(
-                db_customer, updates=updates, load_relations=["projects"]
+                db_customer, updates=customer.model_dump(), load_relations=["projects"]
             )
         except CustomerNotFoundError as e:
             logger.error("Customer not found: %s", e)
@@ -91,6 +128,18 @@ class CustomerService(ICustomerService):
         projects: bool = False,
         users: bool = False,
     ) -> Customer:
+        """Functionality for retrieving a customer entity from database
+
+        Args:
+            name (str | None, optional): Name of customer to find. Defaults to None.
+            customer_id (str | None, optional): ID of customer to find. Defaults to None.
+            projects (bool, optional): Include customer's related projects? Defaults to False.
+            users (bool, optional): Include customer's related users? Defaults to False.
+            Only applicable if projects loaded.
+
+        Returns:
+            Customer: Retrieved customer entity
+        """
         try:
             logger.info("Getting customer")
             if not name and not customer_id:
@@ -128,6 +177,17 @@ class CustomerService(ICustomerService):
     async def list_customers(
         self, projects: bool = False, users: bool = False
     ) -> List[Customer]:
+        """Functionality for listing all customers in the database.
+
+        Args:
+            projects (bool, optional): Include customer's related projects? Defaults to False.
+            users (bool, optional): Include customer's related users? Defaults to False.
+            Only applicable if projects loaded.
+
+        Returns:
+            List[Customer]: A list containing all customer entities
+        """
+
         try:
             logger.info("Listing customers")
             customers = await self._customer_repository.list_all(
@@ -135,10 +195,9 @@ class CustomerService(ICustomerService):
             )
 
             if len(customers) < 1 or not users or not projects:
-                logger.info("No customers found")
                 return customers
 
-            logger.info("Loading users")
+            logger.info("Loading relations")
             await self.load_users(customers)
             return customers
         except DatabaseConnectionError as e:
@@ -157,8 +216,24 @@ class CustomerService(ICustomerService):
         name: str | None = None,
         customer_id: str | None = None,
     ) -> Customer | None:
+        """Functionality for finding a customer in the database.
+
+        Customer can be found by either name or ID.
+
+        Args:
+            load_relations (List[str] | None, optional): Dict containing any related entities
+            to load async. Defaults to None.
+            name (str | None, optional): Name of customer to find. Defaults to None.
+            customer_id (str | None, optional): ID of customer to find. Defaults to None.
+
+        Returns:
+            Customer | None: The found customer entity or None
+        """
+
         try:
             logger.info("Finding customer")
+
+            # Build a dict of params to query for, required by repository layer
             params = {
                 key: value
                 for key, value in {
@@ -192,7 +267,13 @@ class CustomerService(ICustomerService):
             logger.error("Error creating user: %s", e)
             ExceptionHandler.raise_internal_server_error()
 
-    async def delete_customer(self, customer_id) -> None:
+    async def delete_customer(self, customer_id: str) -> None:
+        """Functionality to find and delete a customer entity
+
+        Args:
+            customer_id (str): The ID of the customer to delete
+
+        """
         try:
             logger.info("Deleting customer")
             customer = await self.find_customer(customer_id=customer_id)
@@ -215,6 +296,11 @@ class CustomerService(ICustomerService):
             ExceptionHandler.raise_internal_server_error()
 
     async def load_users(self, customers: List[Customer]) -> None:
+        """Helper function to load any required related users async.
+
+        Args:
+            customers (List[Customer]): A list containing customer entities
+        """
         for customer in customers:
             if customer.projects:
                 for project in customer.projects:

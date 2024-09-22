@@ -6,6 +6,10 @@ from api.schemas.auth import Token, TokenData
 
 
 class IAuthService(ABC):
+    """Service interface for Auth Service
+
+    Defines necessary functions for inheriting service
+    """
 
     @abstractmethod
     async def login(self, request: OAuth2PasswordRequestForm) -> Token:

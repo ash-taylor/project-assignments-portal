@@ -1,3 +1,5 @@
+"""Pydantic validation models for user requests and responses"""
+
 from enum import Enum
 from typing import Optional
 from pydantic import (
@@ -28,11 +30,13 @@ class UserCreate(UserBase):
 
     @field_validator("user_name", "email", mode="before")
     def to_lowercase(cls, v):  # pylint: disable=no-self-argument
+        """On creation, strips any leading or trailing whitespace and ensures string is lowercase"""
         if isinstance(v, str):
             return v.strip().lower()
 
     @field_validator("first_name", "last_name", mode="before")
     def capitalize(cls, v):  # pylint: disable=no-self-argument
+        """On creation, strips any leading or trailing whitespace and capitalizes the string"""
         if isinstance(v, str):
             return v.strip().capitalize()
 
