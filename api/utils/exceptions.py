@@ -1,3 +1,5 @@
+"""Module containing custom exception classes and logic"""
+
 from typing import Any, NoReturn
 from fastapi import HTTPException
 
@@ -81,6 +83,7 @@ class ProjectAlreadyExistsError(ProjectServiceError):
 
 
 class ExceptionHandler:
+    """Static class containing frequently used HTTP error responses."""
 
     @staticmethod
     def raise_http_exception(

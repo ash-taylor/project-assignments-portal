@@ -1,3 +1,5 @@
+"""The Service layer for all project API routes"""
+
 from typing import List
 
 from api.database.models import User
@@ -23,10 +25,11 @@ logger = logging.getLogger(__name__)
 
 
 class UserService(IUserService):
-    """
-    User Service class, inherits from User Service interface.
+    """The service for all user routes.
+    Contains all business logic
 
-    Contains all of the business logic related to user entities.
+    Args:
+        IUserService: Interface defining required functionalities
     """
 
     def __init__(
@@ -34,11 +37,26 @@ class UserService(IUserService):
         user_repository: IRepository[User],
         auth_service: IAuthService,
     ) -> None:
+        """Initialize the service
+
+        Args:
+            user_repository (IRepository[User]): The repository layer for database interactions
+            auth_service (IAuthService): Service containing AuthN / AuthZ functionalities
+        """
         logger.info("Initializing UserService")
         self._user_repository = user_repository
         self._auth_service = auth_service
 
     async def create_user(self, user: UserCreate) -> Token:
+        """Functionality for creation and storage of new users.
+
+        Args:
+            user (UserCreate): Validated Pydantic UserCreate model
+
+        Returns:
+            Token: An encoded JWT
+        """
+
         try:
             logger.info("Creating user")
 
@@ -103,6 +121,16 @@ class UserService(IUserService):
             ExceptionHandler.raise_internal_server_error()
 
     async def update_user(self, user_id: str, user: UserUpdate) -> User:
+        """Functionality for updating an existing user entity
+
+        Args:
+            user_id (str): The ID of user to update
+            user (UserUpdate): Validated Pydantic UserUpdate model
+
+        Returns:
+            User: Updated user
+        """
+
         try:
             logger.info("Updating user")
             db_user = await self.find_user(user_id=user_id)
@@ -133,6 +161,16 @@ class UserService(IUserService):
             ExceptionHandler.raise_internal_server_error()
 
     async def get_user_by_id(self, user_id: str, project: bool = False) -> User:
+        """Functionality for querying the database for a user, by user ID.
+
+        Args:
+            user_id (str | None, optional): ID of user to find. Defaults to None.
+            project (bool, optional): Include user's related projects? Defaults to False.
+
+        Returns:
+            Project: Retrieved user entity
+        """
+
         try:
             logger.info("Getting user")
             user = await self.find_user(
@@ -157,6 +195,15 @@ class UserService(IUserService):
             ExceptionHandler.raise_internal_server_error()
 
     async def list_users(self, projects: bool = False) -> List[User]:
+        """Functionality for listing all users in the database.
+
+        Args:
+            projects (bool, optional): Include any related projects? Defaults to False.
+
+        Returns:
+            List[User]: A list containing all user entities
+        """
+
         try:
             logger.info("Listing users")
             return await self._user_repository.list_all(
@@ -183,6 +230,21 @@ class UserService(IUserService):
         user_email: str | None = None,
         user_id: str | None = None,
     ) -> User | None:
+        """Functionality for finding a user in the database.
+
+        User can be found by either username, email or ID.
+
+        Args:
+            load_relations (List[str] | None, optional): Dict containing any related entities
+            to load async. Defaults to None.
+            username (str | None, optional): Username of user to find. Defaults to None.
+            user_email (str | None, optional): Email address of user to find. Defaults to None.
+            user_id (str | None, optional): ID of user to find. Defaults to None.
+
+        Returns:
+            Project | None: The found user entity or None
+        """
+
         try:
             logger.info("Finding user")
             params = {
@@ -220,6 +282,13 @@ class UserService(IUserService):
             ExceptionHandler.raise_internal_server_error()
 
     async def delete_user(self, user_id: str) -> None:
+        """Functionality to find and delete a user entity
+
+        Args:
+            user_id (str): The ID of the user to delete
+
+        """
+
         try:
             logger.info("Deleting user")
             user = await self.find_user(user_id=user_id)
@@ -244,6 +313,18 @@ class UserService(IUserService):
             ExceptionHandler.raise_internal_server_error()
 
     async def update_user_project(self, user_id: str, project_id: str | None) -> User:
+        """Functionality to update the 'project_id' of a user entity.
+        Used to either assign or unassign a project to the user.
+
+        Args:
+            user_id (str): The ID of the user
+            project_id (str | None): The Project ID to update the user with.
+            If None - the user will no longer be assigned a project.
+
+        Returns:
+            User: The updated user entity
+        """
+
         try:
             logger.info("Updating user project")
             user = await self.find_user(user_id=user_id)

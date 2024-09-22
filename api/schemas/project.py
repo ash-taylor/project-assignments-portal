@@ -1,3 +1,5 @@
+"""Pydantic validation models for project requests and responses"""
+
 from enum import Enum
 from typing import Optional
 from pydantic import UUID4, BaseModel, ConfigDict, Field, field_validator
@@ -20,6 +22,7 @@ class ProjectBase(BaseModel):
 class ProjectCreate(ProjectBase):
     @field_validator("name", mode="before")
     def capitalize(cls, v):  # pylint: disable=no-self-argument
+        """On creation, strips any leading or trailing whitespace and capitalizes the string"""
         if v and isinstance(v, str):
             return v.strip().capitalize()
 
@@ -32,11 +35,13 @@ class ProjectCreate(ProjectBase):
 class ProjectUpdate(ProjectBase):
     @field_validator("name", mode="before")
     def capitalize(cls, v):  # pylint: disable=no-self-argument
+        """On creation, strips any leading or trailing whitespace and capitalizes the string"""
         if v and isinstance(v, str):
             return v.strip().capitalize()
 
     @field_validator("details", "customer_id", mode="before")
     def strip(cls, v):  # pylint: disable=no-self-argument
+        """On creation, strips any leading or trailing whitespace"""
         if v and isinstance(v, str):
             return v.strip()
 

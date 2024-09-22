@@ -1,3 +1,5 @@
+"""Pydantic validation models for auth tokens"""
+
 from pydantic import UUID4, BaseModel
 
 

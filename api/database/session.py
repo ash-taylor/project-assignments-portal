@@ -25,7 +25,14 @@ class Base(AsyncAttrs, DeclarativeBase):
 
 
 class DatabaseSessionManager:
-    def __init__(self, host: str):
+    """Class containing asynchronous database configuration, engine and session management."""
+
+    def __init__(self, host: str) -> None:
+        """Instantiation: Create an asynchronous engine and generate a session maker.
+
+        Args:
+            host (str): Database host (URL)
+        """
         logger.info("Initialising database session manager")
         self.engine = create_async_engine(
             host,
@@ -40,7 +47,8 @@ class DatabaseSessionManager:
             autocommit=False,
         )
 
-    async def close(self):
+    async def close(self) -> None:
+        """Ensure database engine exists and then closes all database connections."""
         logger.info("Closing database session manager")
         if self.engine is None:
             logger.warning("Database session manager is already closed")
@@ -52,6 +60,12 @@ class DatabaseSessionManager:
 
     @asynccontextmanager
     async def connect(self) -> AsyncIterator[AsyncConnection]:
+        """Creates a connection with the configured database.
+
+        Returns:
+            AsyncIterator[AsyncConnection]: An async iterator of SQLAlchemy async connections
+
+        """
         logger.info("Connecting to database")
         if self.engine is None:
             logger.warning("Database session manager is not initialised")
@@ -70,6 +84,7 @@ class DatabaseSessionManager:
 
     @asynccontextmanager
     async def session(self) -> AsyncIterator[AsyncSession]:
+        """Ensures the session maker has been created, generates and then yields a session for the configured database"""
         logger.info("Opening database session")
         if self._sessionmaker is None:
             logger.warning("Database session manager is not initialised")

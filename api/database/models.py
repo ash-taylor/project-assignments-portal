@@ -1,3 +1,5 @@
+"""The models module defining the SQLAlchemy database models for the application entities"""
+
 from typing import List, Optional
 import uuid
 from sqlalchemy import UUID, Boolean, Enum, ForeignKey, String, Text
@@ -10,6 +12,8 @@ from . import Base
 
 
 class User(Base):
+    """The application 'User' database model."""
+
     __tablename__ = "user"
 
     id: Mapped[uuid.UUID] = mapped_column(
@@ -33,6 +37,7 @@ class User(Base):
     project: Mapped[Optional["Project"]] = relationship(back_populates="users")
 
     def __repr__(self):
+        """Function that defines the output when the model is printed to the console."""
         return f"""
 <User(
     id={self.id},
@@ -49,6 +54,8 @@ class User(Base):
 
 
 class Customer(Base):
+    """The application 'Customer' database model."""
+
     __tablename__ = "customer"
 
     id: Mapped[uuid.UUID] = mapped_column(
@@ -59,11 +66,13 @@ class Customer(Base):
     )
     active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     details: Mapped[Optional[str]] = mapped_column(Text)
+    # On deletion of a customer, all related projects deleted
     projects: Mapped[Optional[List["Project"]]] = relationship(
         back_populates="customer", cascade="all, delete-orphan"
     )
 
     def __repr__(self):
+        """Function that defines the output when the model is printed to the console."""
         return f"""
 <Customer(
     id={self.id},
@@ -74,6 +83,8 @@ class Customer(Base):
 
 
 class Project(Base):
+    """The application 'Project' database model."""
+
     __tablename__ = "project"
 
     id: Mapped[uuid.UUID] = mapped_column(
@@ -98,6 +109,7 @@ class Project(Base):
     users: Mapped[List["User"]] = relationship(back_populates="project")
 
     def __repr__(self):
+        """Function that defines the output when the model is printed to the console."""
         return f"""
 <Project(
     id={self.id},

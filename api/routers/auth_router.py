@@ -1,3 +1,5 @@
+"""Authentication router module providing entry point for auth API routes."""
+
 import logging
 from typing import Annotated
 from fastapi import APIRouter, Depends, Response
@@ -20,7 +22,19 @@ async def login(
     request: Annotated[OAuth2PasswordRequestForm, Depends()],
     auth_service: Annotated[IAuthService, Depends(get_auth_service)],
 ):
+    """POST /login route
+
+    Validates log in request and sets the cookie with a JWT.
+
+    Args:
+        response (Response): FastAPI Response - allows cookie access.
+        request (Annotated[OAuth2PasswordRequestForm, Depends): The Form request object.
+        auth_service (Annotated[IAuthService, Depends): The application 'Auth' service.
+    """
+
     logger.info("user: %s invoked POST /login", request.username)
+
+    # Validate the request and generate a JWT
     access_token = (await auth_service.login(request)).access_token
 
     response.set_cookie(
@@ -37,7 +51,16 @@ async def login(
 @router.post("/logout", status_code=205)
 async def logout(
     response: Response,
-    token: Annotated[TokenData, Depends(validate_user)],
+    token: Annotated[TokenData, Depends(validate_user)],  # User
 ):
+    """POST /logout route
+
+    Removes the token from the cookie so any future requests are invalidated.
+
+    Args:
+        response (Response): FastAPI Response - allows cookie management.
+        token (Annotated[TokenData, Depends): The JWT from the cookie.
+    """
+
     logger.info("user %s invoked POST /logout", token.username)
     response.delete_cookie("access_token")

@@ -82,6 +82,14 @@ class AuthService(IAuthService):
             ExceptionHandler.raise_internal_server_error()
 
     def create_jwt(self, data: dict) -> str:
+        """Creates a valid encoded JWT with configured expiry
+
+        Args:
+            data (dict): Dict containing the data for the JWT payload
+
+        Returns:
+            str: The encoded JWT
+        """
         try:
             logger.info("Creating JWT")
             exp = datetime.now(timezone.utc) + timedelta(
@@ -99,6 +107,16 @@ class AuthService(IAuthService):
     def decode_jwt(
         self, token: Annotated[str, Depends(app_config.oauth2_scheme)]
     ) -> TokenData:
+        """Attempts to decode the passed in JWT
+
+        Raises if the JWT is invalid/ expired
+
+        Args:
+            token (Annotated[str, Depends): A base-64 encoded JWT
+
+        Returns:
+            TokenData: A dict containing the decoded token data
+        """
         try:
             logger.info("Decoding JWT")
             payload = decode(
@@ -120,6 +138,14 @@ class AuthService(IAuthService):
             ExceptionHandler.raise_invalid_token_exception()
 
     def hash_pwd(self, pt_pwd: str) -> str:
+        """Creates a hash of the input password
+
+        Args:
+            pt_pwd (str): Plain text password to be hashed
+
+        Returns:
+            str: The hashed password
+        """
         try:
             logger.info("Hashing password")
             return self._pwd_context.hash(pt_pwd)
@@ -128,6 +154,15 @@ class AuthService(IAuthService):
             raise PasswordHashingError(str(e)) from e
 
     def validate_pwd(self, pt_pwd: str, hashed_pwd: str):
+        """Compares a plain-text password against a hash
+
+        Args:
+            pt_pwd (str): Plain-text password
+            hashed_pwd (str): Hashed password
+
+        Returns:
+            Bool: Validation response
+        """
         try:
             logger.info("Validating password")
             return self._pwd_context.verify(pt_pwd, hashed_pwd)
