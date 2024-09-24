@@ -84,7 +84,7 @@ const RegisterForm = () => {
                   <FormControl>
                     <Input
                       {...field}
-                      placeholder="username"
+                      placeholder="username (must be 8 characters)"
                       autoComplete="username"
                     />
                   </FormControl>
