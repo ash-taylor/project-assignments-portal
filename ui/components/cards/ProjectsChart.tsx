@@ -60,14 +60,13 @@ const ProjectsChart = () => {
       }[] = [];
 
       projects.forEach((project) => {
-        if (project.status !== ProjectStatus.COMPLETE || ProjectStatus.PENDING)
-          data.push({
-            project: project.id,
-            name: project.name,
-            engineers: project.users.filter(
-              (user) => user.role === UserRole.ENGINEER
-            ).length,
-          });
+        data.push({
+          project: project.id,
+          name: project.name,
+          engineers: project.users.filter(
+            (user) => user.role === UserRole.ENGINEER
+          ).length,
+        });
       });
 
       setChartData(data);
@@ -159,8 +158,7 @@ const ProjectsChart = () => {
         {isReady && (
           <>
             <div className="flex items-center gap-2 font-medium leading-none">
-              There are currently {chartData?.length} projects in
-              &apos;design&apos; or &apos;build&apos; phase.
+              There are currently {chartData?.length} team projects
             </div>
             <div className="leading-none text-muted-foreground">
               Number of engineers assigned to each project

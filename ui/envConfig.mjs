@@ -4,7 +4,7 @@ import path from 'path';
 
 const { loadEnvConfig } = pkg;
 
-const envDir = path.resolve(process.cwd(), '../.env');
+const envDir = path.resolve(process.cwd(), '../');
 
 loadEnvConfig(envDir);
 configDotenv({ path: envDir });
