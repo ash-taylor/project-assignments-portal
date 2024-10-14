@@ -20,5 +20,11 @@
     "concurrently": "^8.2.2",
     "typescript": "^5"
   },
-  "packageManager": "pnpm@9.9.0"
+  "packageManager": "pnpm@9.9.0",
+  "pnpm": {
+    "overrides": {
+      "micromatch@<4.0.8": ">=4.0.8",
+      "next@>=14.0.0 <14.2.10": ">=14.2.10"
+    }
+  }
 }
